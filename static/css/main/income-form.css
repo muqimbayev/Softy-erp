@@ -1,0 +1,607 @@
+/* static/css/main/income-form.css */
+
+/* ===== INCOME FORM PAGE ===== */
+.income-form-page {
+    padding: 24px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* Form Header */
+.form-header-card {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 32px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 8px 32px rgba(40, 167, 69, 0.3);
+}
+
+.page-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+}
+
+.page-title i {
+    width: 32px;
+    height: 32px;
+}
+
+/* Service Info Card */
+.service-info-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border: 1px solid #e9ecef;
+}
+
+.service-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.summary-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+}
+
+.summary-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+/* Status Colors */
+.status-won {
+    color: #28a745 !important;
+    font-weight: 600;
+}
+
+.status-lost {
+    color: #dc3545 !important;
+    font-weight: 600;
+}
+
+.status-canceled {
+    color: #ffc107 !important;
+    font-weight: 600;
+}
+
+.status-not_participating {
+    color: #6c757d !important;
+    font-weight: 600;
+}
+
+/* Form Container */
+.form-container {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.income-form {
+    padding: 32px;
+}
+
+/* Form Sections */
+.form-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    margin-bottom: 32px;
+}
+
+.form-section {
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.section-header {
+    background: #f8f9fa;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.section-header h3 {
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.section-description {
+    margin: 0;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.section-content {
+    padding: 24px;
+}
+
+/* Form Rows and Groups */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.form-row:last-child {
+    margin-bottom: 0;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+
+.form-control {
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #28a745;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+}
+
+.form-control:valid {
+    background: white;
+}
+
+/* Amount Input */
+.amount-input-container {
+    position: relative;
+}
+
+.amount-input-container .form-control {
+    padding-right: 60px;
+}
+
+.currency-label {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    font-weight: 600;
+    font-size: 14px;
+    pointer-events: none;
+}
+
+/* Select Styling */
+select.form-control {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px 12px;
+    padding-right: 40px;
+    appearance: none;
+}
+
+/* Textarea Styling */
+textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+    line-height: 1.5;
+}
+
+/* Field Help */
+.field-help {
+    color: #6c757d;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+/* Field Error */
+.field-error {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 500;
+}
+
+.field-error::before {
+    content: "⚠";
+    font-size: 14px;
+}
+
+/* Calculation Grid */
+.calculation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.calc-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.calc-item.highlight {
+    border-color: #28a745;
+    background: linear-gradient(135deg, #f8fff9 0%, #e8f5e8 100%);
+}
+
+.calc-label {
+    font-weight: 600;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.calc-value {
+    font-weight: 700;
+    color: #2c3e50;
+    font-size: 16px;
+}
+
+.calc-item.highlight .calc-value {
+    color: #28a745;
+    font-size: 18px;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    padding-top: 24px;
+    border-top: 1px solid #e9ecef;
+}
+
+/* Button Styles */
+.btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 44px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border-color: #28a745;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #20c997 0%, #28a745 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.btn-secondary {
+    background: #f8f9fa;
+    color: #6c757d;
+    border-color: #e9ecef;
+}
+
+.btn-secondary:hover {
+    background: #e9ecef;
+    color: #495057;
+    border-color: #dee2e6;
+}
+
+.btn-light {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.btn-light:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.btn:disabled,
+.btn-loading {
+    opacity: 0.8;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.btn-loader {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Alert Styles */
+.alert {
+    padding: 16px 20px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.alert-success {
+    background: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.alert-danger {
+    background: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+/* Header Actions */
+.header-actions {
+    display: flex;
+    gap: 12px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .income-form-page {
+        padding: 16px;
+    }
+    
+    .form-header-card {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+    }
+    
+    .income-form {
+        padding: 20px;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .calculation-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .service-summary {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-title {
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+    }
+    
+    .calc-item {
+        flex-direction: column;
+        gap: 4px;
+        text-align: center;
+    }
+}
+
+/* Success States */
+.form-success {
+    background: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Focus States */
+.form-control:focus {
+    outline: 2px solid #28a745;
+    outline-offset: 2px;
+}
+
+/* Alert Warning Style */
+.alert-warning {
+    background: #fff3cd;
+    border-color: #ffeaa7;
+    color: #856404;
+}
+
+/* Field Error State */
+.form-control.error {
+    border-color: #dc3545 !important;
+    background: #fff5f5 !important;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1) !important;
+}
+
+/* Draft Saved Indicator */
+.draft-saved {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #28a745;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.draft-saved.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Status Message */
+.status-message {
+    margin-top: 8px;
+    font-size: 13px;
+    padding: 8px 12px;
+}
+
+/* Calculation animations */
+.calc-value {
+    transition: all 0.3s ease;
+}
+
+.calc-item.highlight .calc-value {
+    transition: color 0.3s ease, font-size 0.3s ease;
+}
+
+/* Enhanced focus states */
+.form-control:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+}
+
+/* Loading animation for calculation */
+.calculation-grid.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* Conditional Required Fields */
+.conditional-required {
+    display: inline;
+    transition: opacity 0.3s ease;
+}
+
+/* Disabled Field Groups */
+.form-group[style*="opacity: 0.5"] {
+    transition: opacity 0.3s ease, pointer-events 0.3s ease;
+}
+
+.form-group[style*="opacity: 0.5"] .form-control {
+    background-color: #f8f9fa !important;
+    color: #6c757d !important;
+    cursor: not-allowed;
+}
+
+.form-group[style*="opacity: 0.5"] label {
+    color: #6c757d !important;
+}
+
+/* Status-based styling */
+.status-received {
+    color: #28a745 !important;
+    font-weight: 600;
+}
+
+.status-pending {
+    color: #ffc107 !important;
+    font-weight: 600;
+}
+
+.status-unpaid {
+    color: #dc3545 !important;
+    font-weight: 600;
+}
+
+.status-partial {
+    color: #17a2b8 !important;
+    font-weight: 600;
+}
+
+.status-cancelled {
+    color: #6c757d !important;
+    font-weight: 600;
+}

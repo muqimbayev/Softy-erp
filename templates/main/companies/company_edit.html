@@ -1,0 +1,202 @@
+<!-- templates/main/companies/company_edit.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/main/companies.css' %}">
+<link rel="stylesheet" href="{% static 'css/main/forms.css' %}">
+{% endblock %}
+
+{% block breadcrumb %}
+<div class="modern-breadcrumb">
+    <a href="{% url 'main:dashboard' %}" class="breadcrumb-link">
+        <i data-lucide="home"></i>
+        Dashboard
+    </a>
+    <i data-lucide="chevron-right" class="breadcrumb-separator"></i>
+    <a href="{% url 'main:company_list' %}" class="breadcrumb-link">
+        <i data-lucide="building"></i>
+        Kompaniyalar
+    </a>
+    <i data-lucide="chevron-right" class="breadcrumb-separator"></i>
+    <a href="{% url 'main:company_detail' company.id %}" class="breadcrumb-link">{{ company.name }}</a>
+    <i data-lucide="chevron-right" class="breadcrumb-separator"></i>
+    <span class="breadcrumb-current">
+        <i data-lucide="edit"></i>
+        Tahrirlash
+    </span>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="company-edit-page">
+    
+    <!-- Page Header -->
+    <div class="page-header-card">
+        <div class="header-content">
+            <div class="header-icon">
+                <i data-lucide="edit"></i>
+            </div>
+            <div class="header-text">
+                <h1 class="page-title">Kompaniya tahrirlash</h1>
+                <p class="page-subtitle">{{ company.name }}</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'main:company_detail' company.id %}" class="btn btn-secondary">
+                <i data-lucide="arrow-left"></i>
+                Orqaga
+            </a>
+        </div>
+    </div>
+    
+    <!-- Edit Form -->
+    <div class="add-form-container">
+        <form method="post" class="company-edit-form" id="companyEditForm">
+            {% csrf_token %}
+            
+            <div class="form-sections">
+                
+                <!-- Basic Information -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i data-lucide="building"></i>
+                        </div>
+                        <div class="section-info">
+                            <h3>Asosiy ma'lumotlar</h3>
+                            <p>Kompaniya nomi va identifikatsiya ma'lumotlari</p>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="{{ form.name.id_for_label }}" class="modern-label">
+                                    <i data-lucide="building"></i>
+                                    {{ form.name.label }}
+                                </label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                    <div class="field-error">{{ form.name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form.stir.id_for_label }}" class="modern-label">
+                                    <i data-lucide="file-text"></i>
+                                    {{ form.stir.label }}
+                                </label>
+                                {{ form.stir }}
+                                {% if form.stir.errors %}
+                                    <div class="field-error">{{ form.stir.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Contact Information -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i data-lucide="user"></i>
+                        </div>
+                        <div class="section-info">
+                            <h3>Aloqa ma'lumotlari</h3>
+                            <p>Mas'ul shaxs va aloqa ma'lumotlari</p>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="{{ form.full_name.id_for_label }}" class="modern-label">
+                                    <i data-lucide="user"></i>
+                                    {{ form.full_name.label }}
+                                </label>
+                                {{ form.full_name }}
+                                {% if form.full_name.errors %}
+                                    <div class="field-error">{{ form.full_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="{{ form.phone_number.id_for_label }}" class="modern-label">
+                                    <i data-lucide="phone"></i>
+                                    {{ form.phone_number.label }}
+                                </label>
+                                {{ form.phone_number }}
+                                {% if form.phone_number.errors %}
+                                    <div class="field-error">{{ form.phone_number.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form.email.id_for_label }}" class="modern-label">
+                                    <i data-lucide="mail"></i>
+                                    {{ form.email.label }}
+                                </label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="field-error">{{ form.email.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Additional Information -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i data-lucide="message-square"></i>
+                        </div>
+                        <div class="section-info">
+                            <h3>Qo'shimcha ma'lumotlar</h3>
+                            <p>Kompaniya haqida qo'shimcha izoh</p>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="form-row">
+                            <div class="form-group full-width">
+                                <label for="{{ form.comment.id_for_label }}" class="modern-label">
+                                    <i data-lucide="message-square"></i>
+                                    {{ form.comment.label }}
+                                </label>
+                                {{ form.comment }}
+                                {% if form.comment.errors %}
+                                    <div class="field-error">{{ form.comment.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="form-actions-modern">
+                <button type="submit" class="btn btn-primary-modern" id="submitBtn">
+                    <i data-lucide="save"></i>
+                    <span>Saqlash</span>
+                    <div class="btn-loader" style="display: none;">
+                        <div class="spinner"></div>
+                    </div>
+                </button>
+                <a href="{% url 'main:company_detail' company.id %}" class="btn btn-secondary-modern">
+                    <i data-lucide="x"></i>
+                    Bekor qilish
+                </a>
+            </div>
+            
+        </form>
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/main/companies.js' %}"></script>
+<script src="{% static 'js/main/company-add.js' %}"></script>
+{% endblock %}

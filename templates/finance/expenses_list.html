@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+
+{% block title %}Xarajatlar{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/main/finance.css' %}" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="finance-container">
+    <!-- Header -->
+    <div class="finance-header">
+        <div class="header-left">
+            <h1 class="page-title">
+                <i class="fas fa-money-bill-wave"></i>
+                Xarajatlar
+            </h1>
+            <p class="page-subtitle">Moliyaviy xarajatlarni boshqarish</p>
+        </div>
+        <div class="header-right">
+            <a href="{% url 'main:expense_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Yangi xarajat
+            </a>
+            <a href="{% url 'main:category_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-tags"></i>
+                Kategoriyalar
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon red">
+                <i class="fas fa-arrow-down"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ total_amount|floatformat:0|intcomma }} so'm</h3>
+                <p>Jami xarajat</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon blue">
+                <i class="fas fa-list"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ page_obj.paginator.count }}</h3>
+                <p>Jami yozuvlar</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <i class="fas fa-tags"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ categories.count }}</h3>
+                <p>Kategoriyalar</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-section">
+        <form method="get" class="filter-form">
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label>Qidirish</label>
+                    <input type="text" name="search" value="" 
+                           placeholder="Xarajat nomi, izoh yoki xodim..." class="form-control">
+                </div>
+                
+                <div class="filter-group">
+                    <label>Kategoriya</label>
+                    <select name="category" class="form-control">
+                        <option value="">Barchasi</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}" 
+                                    {% if filters.category == category.id|stringformat:"s" %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Tur</label>
+                    <select name="type" class="form-control">
+                        <option value="">Barchasi</option>
+                        <option value="monthly" {% if filters.type == 'monthly' %}selected{% endif %}>
+                            Oylik xarajatlar
+                        </option>
+                        <option value="service" {% if filters.type == 'service' %}selected{% endif %}>
+                            Xizmat xarajatlari
+                        </option>
+                        <option value="company" {% if filters.type == 'company' %}selected{% endif %}>
+                            Kompaniya xarajatlari
+                        </option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Dan</label>
+                    <input type="date" name="date_from" value="{{ filters.date_from }}" class="form-control">
+                </div>
+                
+                <div class="filter-group">
+                    <label>Gacha</label>
+                    <input type="date" name="date_to" value="{{ filters.date_to }}" class="form-control">
+                </div>
+                
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i>
+                        Filtrlash
+                    </button>
+                    <a href="{% url 'main:expenses_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i>
+                        Tozalash
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Expenses Table -->
+    <div class="table-container">
+        <div class="table-responsive">
+            <table class="table expenses-table">
+                <thead>
+                    <tr>
+                        <th>Sana</th>
+                        <th>Xarajat nomi</th>
+                        <th>Kategoriya</th>
+                        <th>Tur</th>
+                        <th>Miqdor</th>
+                        <th>To'lov usuli</th>
+                        <th>Yaratgan</th>
+                        <th class="actions-col">Amallar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for expense in page_obj %}
+                    <tr>
+                        <td>
+                            <span class="date-cell">
+                                {{ expense.date|date:"d.m.Y" }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="expense-title">
+                                <strong>{{ expense.title }}</strong>
+                                {% if expense.notes %}
+                                    <small class="expense-notes">{{ expense.notes|truncatechars:50 }}</small>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="category-badge">
+                                {{ expense.category.name }}
+                                {% if expense.category.tax_rate > 0 %}
+                                    <small class="tax-info">({{ expense.category.tax_rate }}% soliq)</small>
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            {% if expense.employee and not expense.service %}
+                                <span class="expense-type monthly">
+                                    <i class="fas fa-user"></i>
+                                    Oylik - {{ expense.employee.first_name }} {{ expense.employee.last_name }}
+                                </span>
+                            {% elif expense.service %}
+                                <span class="expense-type service">
+                                    <i class="fas fa-briefcase"></i>
+                                    Xizmat - {{ expense.service.name }}
+                                </span>
+                            {% else %}
+                                <span class="expense-type company">
+                                    <i class="fas fa-building"></i>
+                                    Kompaniya
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="amount-cell">
+                                {{ expense.amount|floatformat:0|intcomma }} so'm
+                            </span>
+                        </td>
+                        <td>
+                            <span class="payment-method {{ expense.payment_method }}">
+                                {% if expense.payment_method == 'cash' %}
+                                    <i class="fas fa-money-bill"></i> Naqd
+                                {% elif expense.payment_method == 'card' %}
+                                    <i class="fas fa-credit-card"></i> Karta
+                                {% elif expense.payment_method == 'transfer' %}
+                                    <i class="fas fa-exchange-alt"></i> O'tkazma
+                                {% elif expense.payment_method == 'check' %}
+                                    <i class="fas fa-file-invoice"></i> Chek
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="created-by">
+                                <strong>{{ expense.created_by.first_name }}</strong>
+                                <small>{{ expense.created_date|date:"d.m.Y H:i" }}</small>
+                            </div>
+                        </td>
+                        <td class="actions-col">
+                            <div class="action-buttons">
+                                <a href="{% url 'main:expense_detail' expense.pk %}" 
+                                   class="btn btn-sm btn-outline-primary" title="Ko'rish">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'main:expense_edit' expense.pk %}" 
+                                   class="btn btn-sm btn-outline-warning" title="Tahrirlash">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'main:expense_delete' expense.pk %}" 
+                                   class="btn btn-sm btn-outline-danger" title="O'chirish">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <h3>Xarajatlar topilmadi</h3>
+                            <p>Hozircha hech qanday xarajat yo'q.</p>
+                            <a href="{% url 'main:expense_create' %}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i>
+                                Birinchi xarajatni qo'shing
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="pagination-container">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        
+        <div class="pagination-info">
+            {{ page_obj.start_index }}-{{ page_obj.end_index }} / {{ page_obj.paginator.count }} ta yozuv
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/main/finance.js' %}"></script>
+{% endblock %}

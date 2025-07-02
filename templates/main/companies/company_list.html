@@ -1,0 +1,145 @@
+<!-- templates/main/companies/company_list.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/main/companies.css' %}">
+{% endblock %}
+
+{% block breadcrumb %}
+
+{% endblock %}
+
+{% block content %}
+<div class="companies-page">
+    
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">
+                <i data-lucide="building"></i>
+                Kompaniyalar
+            </h1>
+            <p class="page-subtitle">Mijoz kompaniyalarini boshqarish</p>
+        </div>
+        {% if can_edit %}
+        <div class="header-actions">
+            <a href="{% url 'main:company_add' %}" class="btn btn-primary">
+                <i data-lucide="building-2"></i>
+                Yangi kompaniya
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Stats Card -->
+    <div class="stats-card">
+        <div class="stat-item">
+            <div class="stat-icon">
+                <i data-lucide="building"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">{{ total_companies }}</div>
+                <div class="stat-label">Jami kompaniyalar</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Companies Table -->
+    <div class="companies-table-container">
+        <div class="table-header">
+            <h2>Barcha kompaniyalar</h2>
+            <div class="table-filters">
+                <input type="text" class="form-control" placeholder="Qidirish..." id="searchInput">
+                <select class="form-control" id="sortFilter">
+                    <option value="name">Nom bo'yicha</option>
+                    <option value="date">Sana bo'yicha</option>
+                    <option value="stir">STIR bo'yicha</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="table-wrapper">
+            <table class="companies-table">
+                <thead>
+                    <tr>
+                        <th>Kompaniya nomi</th>
+                        <th>STIR</th>
+                        <th>Telefon</th>
+                        <th>Yaratilgan sana</th>
+                        {% if can_edit %}
+                        <th>Amallar</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody id="companiesTableBody">
+                    {% for company in companies %}
+                    <tr class="company-row" data-name="{{ company.name|lower }}" data-stir="{{ company.stir }}">
+                        <td>
+                            <div class="company-info">
+                                <div class="company-avatar">
+                                    {{ company.name.0|upper }}
+                                </div>
+                                <div class="company-details">
+                                    <a href="{% url 'main:company_detail' company.id %}" class="company-name">
+                                        {% if company.name|length > 30 %}
+                                            {{ company.name|slice:":30" }}...
+                                        {% else %}
+                                            {{ company.name }}
+                                        {% endif %}
+                                    </a>
+                                    <div class="company-email">{{ company.email|default:'—' }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="stir-number">{{ company.stir }}</span>
+                        </td>
+                        <td>
+                            <span class="phone-number">{{ company.phone_number|default:'—' }}</span>
+                        </td>
+                        <td>
+                            <span class="created-date">{{ company.created_date|date:'d.m.Y' }}</span>
+                            <div class="created-time">{{ company.created_date|date:'H:i' }}</div>
+                        </td>
+                        {% if can_edit %}
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{% url 'main:company_detail' company.id %}" class="btn btn-sm btn-outline" title="Ko'rish">
+<img src="/static/icon/view.png" alt="Edit" width="16" height="16">
+                                </a>
+                                <a href="{% url 'main:company_edit' company.id %}" class="btn btn-sm btn-outline" title="Tahrirlash">
+<img src="/static/icon/edit.png" alt="Edit" width="16" height="16">
+                                </a>
+                            </div>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="{% if can_edit %}5{% else %}4{% endif %}" class="empty-state">
+                            <div class="empty-content">
+                                <i data-lucide="building"></i>
+                                <h3>Kompaniyalar topilmadi</h3>
+                                <p>Hozircha tizimda kompaniyalar mavjud emas</p>
+                                {% if can_edit %}
+                                <a href="{% url 'main:company_add' %}" class="btn btn-primary">
+                                    <i data-lucide="plus"></i>
+                                    Birinchi kompaniyani qo'shing
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/main/companies.js' %}"></script>
+{% endblock %}

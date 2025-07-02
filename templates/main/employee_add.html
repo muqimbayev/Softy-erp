@@ -1,0 +1,265 @@
+<!-- templates/main/employees/employee_add.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/main/employee.css' %}">
+<link rel="stylesheet" href="{% static 'css/main/forms.css' %}">
+{% endblock %}
+
+{% block breadcrumb %}
+
+{% endblock %}
+
+{% block content %}
+<div class="employee-add-page">
+    
+    <!-- Page Header -->
+    <div class="page-header-card">
+        <div class="header-content">
+            <div class="header-icon">
+                <i data-lucide="user-plus"></i>
+            </div>
+            <div class="header-text">
+                <h1 class="page-title">Yangi xodim qo'shish</h1>
+                <p class="page-subtitle">Tizimga yangi foydalanuvchi va xodim qo'shing</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'main:employee_list' %}" class="btn btn-secondary">
+                <i data-lucide="arrow-left"></i>
+                Orqaga
+            </a>
+        </div>
+    </div>
+    
+    <!-- Add Form -->
+    <div class="add-form-container">
+        <form method="post" class="employee-add-form" id="employeeAddForm">
+            {% csrf_token %}
+            
+            <div class="form-sections">
+                
+                <!-- Contact Information -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i data-lucide="phone"></i>
+                        </div>
+                        <div class="section-info">
+                            <h3>Aloqa ma'lumotlari</h3>
+                            <p>Telefon raqam login uchun ishlatiladi</p>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="{{ form.phone_number.id_for_label }}" class="modern-label">
+                                    <i data-lucide="phone"></i>
+                                    {{ form.phone_number.label }}
+                                </label>
+                                {{ form.phone_number }}
+                                {% if form.phone_number.errors %}
+                                    <div class="field-error">{{ form.phone_number.errors.0 }}</div>
+                                {% endif %}
+                                <small class="field-help">Bu telefon raqam bilan tizimga kiradi</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Account Information -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i data-lucide="lock"></i>
+                        </div>
+                        <div class="section-info">
+                            <h3>Xavfsizlik</h3>
+                            <p>Tizimga kirish uchun parol o'rnating</p>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="{{ form.password1.id_for_label }}" class="modern-label">
+                                    <i data-lucide="lock"></i>
+                                    {{ form.password1.label }}
+                                </label>
+                                <div class="password-input-container">
+                                    {{ form.password1 }}
+                                    <button type="button" class="password-toggle-btn" data-target="{{ form.password1.id_for_label }}">👁
+                                        <i data-lucide="eye"></i>
+                                    </button>
+                                </div>
+                                {% if form.password1.errors %}
+                                    <div class="field-error">{{ form.password1.errors.0 }}</div>
+                                {% endif %}
+                                <!-- Password Strength Indicator -->
+                                <div class="password-strength" id="passwordStrength">
+                                    <div class="strength-bar">
+                                        <div class="strength-fill" id="strengthFill"></div>
+                                    </div>
+                                    <div class="strength-text" id="strengthText">Parol kuchini aniqlash...</div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form.password2.id_for_label }}" class="modern-label">
+                                    <i data-lucide="check-circle"></i>
+                                    {{ form.password2.label }}
+                                </label>
+                                <div class="password-input-container">
+                                    {{ form.password2 }}
+                                    <button type="button" class="password-toggle-btn" data-target="{{ form.password2.id_for_label }}">
+                                        <i data-lucide="eye"></i>
+                                    </button>
+                                </div>
+                                <div class="password-match" id="passwordMatch" style="display: none;">
+                                    <i data-lucide="check-circle"></i>
+                                    <span>Parollar mos keladi</span>
+                                </div>
+                                {% if form.password2.errors %}
+                                    <div class="field-error">{{ form.password2.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Personal Information -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i data-lucide="user-check"></i>
+                        </div>
+                        <div class="section-info">
+                            <h3>Shaxsiy ma'lumotlar</h3>
+                            <p>Xodimning ism, familiya va boshqa ma'lumotlari</p>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="{{ form.first_name.id_for_label }}" class="modern-label">
+                                    <i data-lucide="user"></i>
+                                    {{ form.first_name.label }}
+                                </label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                    <div class="field-error">{{ form.first_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form.last_name.id_for_label }}" class="modern-label">
+                                    <i data-lucide="user"></i>
+                                    {{ form.last_name.label }}
+                                </label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    <div class="field-error">{{ form.last_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Work Information -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i data-lucide="briefcase"></i>
+                        </div>
+                        <div class="section-info">
+                            <h3>Ish ma'lumotlari</h3>
+                            <p>Xodimning lavozimi va holati</p>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="{{ form.position.id_for_label }}" class="modern-label">
+                                    <i data-lucide="shield"></i>
+                                    {{ form.position.label }}
+                                </label>
+                                {{ form.position }}
+                                {% if form.position.errors %}
+                                    <div class="field-error">{{ form.position.errors.0 }}</div>
+                                {% endif %}
+                                <small class="field-help">Xodimning tizimda roli</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form.hire_date.id_for_label }}" class="modern-label">
+                                    <i data-lucide="calendar"></i>
+                                    {{ form.hire_date.label }}
+                                </label>
+                                {{ form.hire_date }}
+                                {% if form.hire_date.errors %}
+                                    <div class="field-error">{{ form.hire_date.errors.0 }}</div>
+                                {% endif %}
+                                <small class="field-help">Xodimning ishga kirgan sanasi</small>
+                            </div>
+                        </div>
+
+
+
+                            <div class="form-group">
+                                    <i data-lucide="calendar"></i>
+                                    {{ form.salary.label }}
+                                </label>
+                                {{ form.salary }}
+                                {% if form.salary.errors %}
+                                    <div class="field-error">{{ form.salary.errors.0 }}</div>
+                                {% endif %}
+                                <small class="field-help">Oylik maoshi</small>
+                            </div>
+                        </div>
+
+
+                        
+                        <div class="form-row">
+                            <div class="form-group checkbox-group">
+                                <div class="checkbox-wrapper">
+                                    {{ form.is_active }}
+                                    <label for="{{ form.is_active.id_for_label }}" class="checkbox-label">
+                                        {{ form.is_active.label }}
+                                    </label>
+                                </div>
+                                {% if form.is_active.errors %}
+                                    <div class="field-error">{{ form.is_active.errors.0 }}</div>
+                                {% endif %}
+                                <small class="field-help">Nofaol xodimlar tizimga kira olmaydi</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="form-actions-modern">
+                <button type="submit" class="btn btn-primary-modern" id="submitBtn">
+                    <i data-lucide="user-plus"></i>
+                    <span>Xodimni qo'shish</span>
+                    <div class="btn-loader" style="display: none;">
+                        <div class="spinner"></div>
+                    </div>
+                </button>
+                <a href="{% url 'main:employee_list' %}" class="btn btn-secondary-modern">
+                    <i data-lucide="x"></i>
+                    Bekor qilish
+                </a>
+            </div>
+            
+        </form>
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/main/employee.js' %}"></script>
+<script src="{% static 'js/main/employee-add.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Tugayotgan Xizmatlar{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/main/expiring_services.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="header-content">
+            <h1 class="header-title">Tugashiga yaqin qolgan xizmatlar</h1>
+            <p class="header-subtitle">30 kun va undan kam qolganlar</p>
+        </div>
+    </div>
+
+    <!-- Dashboard Cards -->
+    <div class="dashboard-cards">
+        <div class="dashboard-card">
+            <div class="card-icon card-icon-purple">
+                <i class="fa fa-tasks"></i>
+            </div>
+            <div class="card-content">
+                <div class="card-number">11</div>
+                <div class="card-label">Jami xizmatlar</div>
+                <div class="card-growth positive">+12%</div>
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="card-icon card-icon-green">
+                <i class="fa fa-check-circle"></i>
+            </div>
+            <div class="card-content">
+                <div class="card-number">10</div>
+                <div class="card-label">Faol xizmatlar</div>
+                <div class="card-growth positive">+8%</div>
+            </div>
+        </div>
+
+
+        <div class="dashboard-card">
+            <div class="card-icon card-icon-blue">
+                <i class="fa fa-clock-o"></i>
+            </div>
+            <div class="card-content">
+                <div class="card-number">{{ services.count }}</div>
+                <div class="card-label">Tugayotgan xizmatlar</div>
+                <div class="card-growth neutral">0%</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Services List -->
+    <div class="services-section">
+        <div class="section-header">
+            <h2 class="section-title">Xizmatlar ro'yxati</h2>
+        </div>
+
+        {% if services %}
+            <div class="services-table">
+                <div class="table-header">
+                    <div class="table-col col-company">Kompaniya va xizmat</div>
+                    <div class="table-col col-date">Muddat</div>
+                <div class="table-col col-company">Tugashiga qoldi</div>
+
+                    <div class="table-col col-tender">Tender holati</div>
+                    <div class="table-col col-status">To'lov holati</div>
+                </div>
+
+                <div class="table-body">
+                    {% for service in services %}
+                        <div class="table-row" onclick="window.location.href='{% url 'main:service_detail' service.id %}'">
+                            <div class="table-col col-company">
+                                <div class="company-info">
+                                    <div class="service-name">{{ service.name }}</div>
+                                    <div class="company-name">{{ service.company.name }}</div>
+                                    <div class="service-type">{{ service.get_type_display }}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="table-col col-date">
+                                <div class="date-info">
+                                    <div class="end-date">{{ service.end_date|date:"d.m.Y" }}</div>
+                                    <div class="start-date">{{ service.started_date|date:"d.m.Y"|default:"" }}</div>
+                                
+                                </div>
+                            </div>
+                            <div class="">
+                                <div class="remaining-days {% if service.remaining_days <= 7 %}urgent{% elif service.remaining_days <= 15 %}warning{% endif %}">
+                                        {{ service.remaining_days }} kun qoldi
+                                    </div>
+                                </div>
+                            <div class="table-col col-tender">
+                                <span class="status-badge tender-{{ service.tender_status }}">
+                                    {{ service.get_tender_status_display }}
+                                </span>
+                            </div>
+                            
+                            <div class="table-col col-status">
+                                <span class="status-badge payment-active">Noma'lum</span>
+                            </div>
+                            
+                           
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fa fa-inbox"></i>
+                </div>
+                <h3>Tugayotgan xizmatlar yo'q</h3>
+                <p>Hozirda tugashiga 30 kundan kam qolgan faol xizmatlar mavjud emas.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/main/expiring_services.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,806 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .form-header {
+        background: linear-gradient(45deg, #714b67, #8e44ad);
+        color: white;
+        padding: 25px 30px;
+        border-bottom: 3px solid #5a3a54;
+        text-align: center;
+    }
+    
+    .form-header h2 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+    }
+    
+    .form-header p {
+        margin: 8px 0 0 0;
+        opacity: 0.9;
+        font-size: 16px;
+    }
+    
+    .form-body {
+        padding: 30px;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 16px;
+    }
+    
+    .required {
+        color: #dc3545;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+    
+    .form-control:focus {
+        border-color: #714b67;
+        box-shadow: 0 0 0 3px rgba(113, 75, 103, 0.1);
+        background: white;
+        outline: none;
+    }
+    
+    textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+        line-height: 1.6;
+    }
+    
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 15px 20px;
+        background: #e7f3ff;
+        border: 2px solid #b3d9ff;
+        border-radius: 10px;
+        margin-top: 8px;
+    }
+    
+    .form-check-input {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        border: 2px solid #714b67;
+        cursor: pointer;
+    }
+    
+    .form-check-input:checked {
+        background-color: #714b67;
+        border-color: #714b67;
+    }
+    
+    .form-check-label {
+        margin: 0;
+        font-weight: 500;
+        color: #2c3e50;
+        cursor: pointer;
+        flex: 1;
+    }
+    
+    .form-help {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        padding: 10px 15px;
+        margin-top: 8px;
+        font-size: 14px;
+        color: #6c757d;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .form-help i {
+        color: #17a2b8;
+        margin-top: 2px;
+    }
+    
+    .input-group {
+        display: flex;
+        align-items: center;
+        position: relative;
+    }
+    
+    .input-group .form-control {
+        padding-right: 50px;
+    }
+    
+    .input-group-append {
+        position: absolute;
+        right: 15px;
+        color: #6c757d;
+        font-weight: 600;
+        pointer-events: none;
+    }
+    
+    .tax-rate-slider {
+        margin-top: 15px;
+    }
+    
+    .slider {
+        width: 100%;
+        height: 8px;
+        border-radius: 5px;
+        background: #e9ecef;
+        outline: none;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+    
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #714b67;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    
+    .slider::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #714b67;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    
+    .slider-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 8px;
+        font-size: 12px;
+        color: #6c757d;
+    }
+    
+    .character-counter {
+        text-align: right;
+        font-size: 12px;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+    
+    .character-counter.warning {
+        color: #fd7e14;
+        font-weight: 500;
+    }
+    
+    .character-counter.danger {
+        color: #dc3545;
+        font-weight: 600;
+    }
+    
+    .form-preview {
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+    
+    .preview-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+        color: #495057;
+        font-weight: 600;
+    }
+    
+    .preview-content {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 15px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    
+    .preview-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #f1f3f4;
+    }
+    
+    .preview-item:last-child {
+        border-bottom: none;
+    }
+    
+    .preview-label {
+        font-weight: 500;
+        color: #6c757d;
+        font-size: 14px;
+    }
+    
+    .preview-value {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+    
+    .preview-value.active {
+        color: #28a745;
+    }
+    
+    .preview-value.inactive {
+        color: #dc3545;
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 25px 30px;
+        background: #f8f9fa;
+        border-top: 2px solid #e9ecef;
+        gap: 15px;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(45deg, #714b67, #8e44ad);
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(45deg, #5a3a54, #7d3c98);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(113, 75, 103, 0.3);
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+    
+    .btn-test {
+        background: #17a2b8;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-test:hover {
+        background: #138496;
+        transform: translateY(-1px);
+    }
+    
+    .alert {
+        border: none;
+        border-radius: 8px;
+        padding: 15px 20px;
+        margin-bottom: 20px;
+    }
+    
+    .alert-danger {
+        background: #f8d7da;
+        border-left: 4px solid #dc3545;
+        color: #721c24;
+    }
+    
+    .alert-success {
+        background: #d4edda;
+        border-left: 4px solid #28a745;
+        color: #155724;
+    }
+    
+    .alert-info {
+        background: #d1ecf1;
+        border-left: 4px solid #17a2b8;
+        color: #0c5460;
+    }
+    
+    .form-errors {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        border-radius: 6px;
+        padding: 10px 15px;
+        margin-top: 5px;
+        color: #721c24;
+        font-size: 14px;
+    }
+    
+    .form-errors ul {
+        margin: 0;
+        padding-left: 20px;
+    }
+    
+    .form-errors li {
+        margin-bottom: 2px;
+    }
+    
+    .tips-section {
+        background: #e7f3ff;
+        border: 1px solid #b3d9ff;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+    
+    .tips-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+        color: #0c5460;
+        font-weight: 600;
+    }
+    
+    .tips-list {
+        margin: 0;
+        padding-left: 20px;
+        color: #0c5460;
+    }
+    
+    .tips-list li {
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+    
+    @media (max-width: 768px) {
+        .form-container {
+            margin: 0 15px;
+        }
+        
+        .form-body {
+            padding: 20px;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .btn-primary,
+        .btn-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .preview-content {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="form-container">
+                <!-- Header -->
+                <div class="form-header">
+                    <h2>
+                        <i class="fas {% if category %}fa-edit{% else %}fa-plus{% endif %}"></i> 
+                        {{ title }}
+                    </h2>
+                    <p>
+                        {% if category %}
+                            Kategoriya ma'lumotlarini yangilang
+                        {% else %}
+                            Yangi xarajat kategoriyasini yarating
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <!-- Body -->
+                <div class="form-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}"></i>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <!-- Tips Section -->
+                    <div class="tips-section">
+                        <div class="tips-header">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>Maslahatlar</span>
+                        </div>
+                        <ul class="tips-list">
+                            <li>Kategoriya nomini tushunarli va qisqa qiling</li>
+                            <li>Soliq foizi umumiy qabul qilingan stavkalarga mos bo'lsin</li>
+                            <li>Faqat zarur bo'lgan kategoriyalarni faol qoldiring</li>
+                            <li>Izoh qismida kategoriya ishlatilish sohasini yozing</li>
+                        </ul>
+                    </div>
+                    
+                    <form method="post" id="categoryForm">
+                        {% csrf_token %}
+                        
+                        <!-- Category Name -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                Kategoriya nomi <span class="required">*</span>
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="form-errors">
+                                    <ul>
+                                        {% for error in form.name.errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Kategoriya uchun tushunarli va qisqa nom kiriting (masalan: "Transport", "Ofis jihozlari")</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Tax Rate -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                Soliq foizi (%)
+                            </label>
+                            <div class="input-group">
+                                {{ form.tax_rate }}
+                                <div class="input-group-append">%</div>
+                            </div>
+                            <div class="tax-rate-slider">
+                                <input type="range" id="taxRateSlider" class="slider" 
+                                       min="0" max="100" step="1" 
+                                       value="{{ form.tax_rate.value|default:12 }}"
+                                       oninput="updateTaxRate(this.value)">
+                                <div class="slider-labels">
+                                    <span>0%</span>
+                                    <span>25%</span>
+                                    <span>50%</span>
+                                    <span>75%</span>
+                                    <span>100%</span>
+                                </div>
+                            </div>
+                            {% if form.tax_rate.errors %}
+                                <div class="form-errors">
+                                    <ul>
+                                        {% for error in form.tax_rate.errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Bu kategoriya bo'yicha xarajatlar uchun qo'llaniladigan soliq foizi</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Active Status -->
+                        <div class="form-group">
+                            <label class="form-label">Holat</label>
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                    Bu kategoriya faol va yangi xarajatlarda ishlatilsin
+                                </label>
+                            </div>
+                            {% if form.is_active.errors %}
+                                <div class="form-errors">
+                                    <ul>
+                                        {% for error in form.is_active.errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Nofaol kategoriyalar yangi xarajatlarda ko'rsatilmaydi</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Notes -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                Izoh (ixtiyoriy)
+                            </label>
+                            {{ form.notes }}
+                            <div class="character-counter" id="notesCounter">0 / 1000 belgi</div>
+                            {% if form.notes.errors %}
+                                <div class="form-errors">
+                                    <ul>
+                                        {% for error in form.notes.errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Kategoriya haqida qo'shimcha ma'lumot, ishlatilish sohasi yoki boshqa muhim eslatmalar</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Live Preview -->
+                        <div class="form-preview">
+                            <div class="preview-header">
+                                <i class="fas fa-eye"></i>
+                                <span>Ko'rinish</span>
+                            </div>
+                            <div class="preview-content">
+                                <div class="preview-item">
+                                    <span class="preview-label">Nom:</span>
+                                    <span class="preview-value" id="previewName">Kategoriya nomi</span>
+                                </div>
+                                <div class="preview-item">
+                                    <span class="preview-label">Soliq:</span>
+                                    <span class="preview-value" id="previewTax">12%</span>
+                                </div>
+                                <div class="preview-item">
+                                    <span class="preview-label">Holat:</span>
+                                    <span class="preview-value active" id="previewStatus">Faol</span>
+                                </div>
+                                <div class="preview-item">
+                                    <span class="preview-label">Izoh:</span>
+                                    <span class="preview-value" id="previewNotes">Izoh kiritilmagan</span>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Actions -->
+                <div class="form-actions">
+        
+                    <div style="display: flex; gap: 15px;">
+                        <a href="{% url 'main:category_list' %}" class="btn-secondary">
+                            <i class="fas fa-times"></i>
+                            Bekor qilish
+                        </a>
+                        <button type="submit" form="categoryForm" class="btn-primary">
+                            <i class="fas fa-save"></i>
+                            {% if category %}Yangilash{% else %}Yaratish{% endif %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Update tax rate from slider
+    function updateTaxRate(value) {
+        document.getElementById('id_tax_rate').value = value;
+        updatePreview();
+    }
+    
+    // Update slider from input
+    function updateSlider() {
+        const input = document.getElementById('id_tax_rate');
+        const slider = document.getElementById('taxRateSlider');
+        slider.value = input.value || 0;
+        updatePreview();
+    }
+    
+    // Update character counter
+    function updateCharacterCounter() {
+        const notesField = document.getElementById('id_notes');
+        const counter = document.getElementById('notesCounter');
+        const length = notesField.value.length;
+        
+        counter.textContent = `${length} / 1000 belgi`;
+        
+        if (length > 800) {
+            counter.className = 'character-counter danger';
+        } else if (length > 600) {
+            counter.className = 'character-counter warning';
+        } else {
+            counter.className = 'character-counter';
+        }
+    }
+    
+    // Update live preview
+    function updatePreview() {
+        const nameField = document.getElementById('id_name');
+        const taxField = document.getElementById('id_tax_rate');
+        const activeField = document.getElementById('id_is_active');
+        const notesField = document.getElementById('id_notes');
+        
+        // Update preview values
+        document.getElementById('previewName').textContent = 
+            nameField.value || 'Kategoriya nomi';
+        
+        document.getElementById('previewTax').textContent = 
+            (taxField.value || 0) + '%';
+        
+        const statusElement = document.getElementById('previewStatus');
+        if (activeField.checked) {
+            statusElement.textContent = 'Faol';
+            statusElement.className = 'preview-value active';
+        } else {
+            statusElement.textContent = 'Nofaol';
+            statusElement.className = 'preview-value inactive';
+        }
+        
+        document.getElementById('previewNotes').textContent = 
+            notesField.value || 'Izoh kiritilmagan';
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        const nameField = document.getElementById('id_name');
+        const taxField = document.getElementById('id_tax_rate');
+        const activeField = document.getElementById('id_is_active');
+        const notesField = document.getElementById('id_notes');
+        
+        // Add event listeners
+        if (nameField) nameField.addEventListener('input', updatePreview);
+        if (taxField) {
+            taxField.addEventListener('input', function() {
+                updateSlider();
+                updatePreview();
+            });
+        }
+        if (activeField) activeField.addEventListener('change', updatePreview);
+        if (notesField) {
+            notesField.addEventListener('input', function() {
+                updateCharacterCounter();
+                updatePreview();
+            });
+        }
+        
+        // Initial updates
+        updateCharacterCounter();
+        updatePreview();
+        updateSlider();
+    });
+    
+    // Test category
+    function testCategory() {
+        const nameField = document.getElementById('id_name');
+        const taxField = document.getElementById('id_tax_rate');
+        const activeField = document.getElementById('id_is_active');
+        
+        if (!nameField.value) {
+            alert('Kategoriya nomini kiriting!');
+            nameField.focus();
+            return;
+        }
+        
+        const testData = {
+            name: nameField.value,
+            tax_rate: taxField.value || 0,
+            is_active: activeField.checked
+        };
+        
+        alert(`Test ma'lumotlari:
+Nom: ${testData.name}
+Soliq foizi: ${testData.tax_rate}%
+Holat: ${testData.is_active ? 'Faol' : 'Nofaol'}
+
+Bu kategoriya muvaffaqiyatli yaratilishi mumkin!`);
+    }
+    
+    // Form validation
+    document.getElementById('categoryForm').addEventListener('submit', function(e) {
+        const nameField = document.getElementById('id_name');
+        const taxField = document.getElementById('id_tax_rate');
+        
+        if (!nameField.value || nameField.value.trim().length < 2) {
+            e.preventDefault();
+            alert('Kategoriya nomi kamida 2 ta belgidan iborat bo\'lishi kerak!');
+            nameField.focus();
+            return;
+        }
+        
+        const taxValue = parseInt(taxField.value) || 0;
+        if (taxValue < 0 || taxValue > 100) {
+            e.preventDefault();
+            alert('Soliq foizi 0 dan 100 gacha bo\'lishi kerak!');
+            taxField.focus();
+            return;
+        }
+    });
+    
+    // Auto-save draft
+    let autoSaveTimeout;
+    function autoSaveDraft() {
+        clearTimeout(autoSaveTimeout);
+        autoSaveTimeout = setTimeout(() => {
+            console.log('Draft auto-saved');
+        }, 2000);
+    }
+    
+    // Add auto-save listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        const formFields = ['id_name', 'id_tax_rate', 'id_is_active', 'id_notes'];
+        formFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.addEventListener('input', autoSaveDraft);
+                field.addEventListener('change', autoSaveDraft);
+            }
+        });
+    });
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            document.getElementById('categoryForm').submit();
+        }
+        
+        if (e.key === 'Escape') {
+            if (confirm('Formani yopish va o\'zgarishlarni bekor qilishni xohlaysizmi?')) {
+                window.location.href = '{% url "main:category_list" %}';
+            }
+        }
+    });
+</script>
+{% endblock %}

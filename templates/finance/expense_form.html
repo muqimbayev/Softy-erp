@@ -1,0 +1,402 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+
+
+{% block title %}
+{% if expense %}Xarajatni tahrirlash{% else %}Yangi xarajat{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/main/finance.css' %}" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="finance-container">
+    <!-- Header -->
+    <div class="finance-header">
+        <div class="header-left">
+            <h1 class="page-title">
+                <i class="fas fa-{% if expense %}edit{% else %}plus{% endif %}"></i>
+                {% if expense %}Xarajatni tahrirlash{% else %}Yangi xarajat qo'shish{% endif %}
+            </h1>
+            <p class="page-subtitle">Moliyaviy xarajat ma'lumotlarini kiriting</p>
+        </div>
+        <div class="header-right">
+            <a href="{% url 'main:expenses_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Orqaga
+            </a>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="form-container">
+        <form method="post" class="expense-form" id="expenseForm">
+            {% csrf_token %}
+            
+            <!-- Xarajat turi -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-cog"></i>
+                    Xarajat turi
+                </h3>
+                
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        {{ form.expense_type.label_tag }}
+                        {{ form.expense_type }}
+                        {% if form.expense_type.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.expense_type.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Asosiy ma'lumotlar -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-info-circle"></i>
+                    Asosiy ma'lumotlar
+                </h3>
+                
+                <div class="form-row">
+                    <div class="form-group col-md-8">
+                        {{ form.title.label_tag }}
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.title.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group col-md-4">
+                        {{ form.date.label_tag }}
+                        {{ form.date }}
+                        {% if form.date.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.date.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Moliyaviy ma'lumotlar -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-money-bill-wave"></i>
+                    Moliyaviy ma'lumotlar
+                </h3>
+                
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        {{ form.category.label_tag }}
+                        {{ form.category }}
+                        {% if form.category.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.category.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted" id="tax-info"></small>
+                    </div>
+                    
+                    <div class="form-group col-md-4">
+                        {{ form.amount.label_tag }}
+                        <div class="amount-input-wrapper">
+                            {{ form.amount }}
+                            <span class="amount-currency">so'm</span>
+                        </div>
+                        <small class="form-text text-muted" id="amount-info">
+                            Bazaviy summa (soliqsiz)
+                        </small>
+                        {% if form.amount.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.amount.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group col-md-4">
+                        {{ form.payment_method.label_tag }}
+                        {{ form.payment_method }}
+                        {% if form.payment_method.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.payment_method.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Soliq hisoblash -->
+                <div class="tax-calculation" id="tax-calculation" style="display: none;">
+                    <div class="calculation-card">
+                        <h4>Soliq hisoblash</h4>
+                        <div class="calculation-row">
+                            <span>Bazaviy summa:</span>
+                            <span id="base-amount-display">0 so'm</span>
+                        </div>
+                        <div class="calculation-row">
+                            <span>Soliq (<span id="tax-rate-display">0</span>%):</span>
+                            <span id="tax-amount-display">0 so'm</span>
+                        </div>
+                        <div class="calculation-row total">
+                            <span>Jami summa:</span>
+                            <span id="total-amount-display">0 so'm</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bog'lanish ma'lumotlari -->
+            <div class="form-section" id="relation-section">
+                <!-- Xodim tanlash (oylik xarajat uchun) -->
+                <div class="employee-section" id="employee-section" style="display: none;">
+                    <h3 class="section-title">
+                        <i class="fas fa-user"></i>
+                        Xodim tanlash
+                    </h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            {{ form.employee.label_tag }}
+                           <select name="employee" id="employee-select" class="form-control">
+    <option value="">Xodim tanlang</option>
+    {% for emp in employees %}
+        <option value="{{ emp.id }}">{{ emp.first_name }} {{ emp.last_name }}</option>
+    {% endfor %}
+</select>
+                            {% if form.employee.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.employee.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Xizmat tanlash -->
+                <div class="service-section" id="service-section" style="display: none;">
+                    <h3 class="section-title">
+                        <i class="fas fa-briefcase"></i>
+                        Xizmat tanlash
+                    </h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            {{ form.service.label_tag }}
+                            <select name="service" id="service-select" class="form-control">
+    <option value="">Xizmatni tanlang</option>
+    {% for ser in services %}
+        <option value="{{ ser.id }}">{{ ser.name }}</option>
+    {% endfor %}
+</select>
+                            {% if form.service.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.service.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Qo'shimcha ma'lumotlar -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-comment"></i>
+                    Qo'shimcha ma'lumotlar
+                </h3>
+                
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        {{ form.notes.label_tag }}
+                        {{ form.notes }}
+                        {% if form.notes.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.notes.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form xatolari -->
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <!-- Form actions -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    {% if expense %}Yangilash{% else %}Saqlash{% endif %}
+                </button>
+                <a href="{% url 'main:expenses_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times"></i>
+                    Bekor qilish
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
+<script src="{% static 'js/main/finance.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form initialization
+    initializeExpenseForm();
+    
+    // Expense type change handler
+    document.getElementById('expense_type').addEventListener('change', function() {
+        handleExpenseTypeChange(this.value);
+    });
+    
+    // Category change handler
+    document.getElementById('category_select').addEventListener('change', function() {
+        handleCategoryChange(this.value);
+    });
+    
+    // Amount input handler
+    document.getElementById('base_amount').addEventListener('input', function() {
+        calculateTotalAmount();
+    });
+    
+    // Initialize Select2 for search
+    initializeSelect2();
+    
+    // Set initial state if editing
+    {% if form.expense_type.value %}
+        handleExpenseTypeChange('{{ form.expense_type.value }}');
+    {% endif %}
+    
+    {% if form.category.value %}
+        handleCategoryChange('{{ form.category.value }}');
+    {% endif %}
+});
+
+function initializeExpenseForm() {
+    // Set default date to today if not set
+    const dateInput = document.querySelector('input[name="date"]');
+    if (!dateInput.value) {
+        dateInput.value = new Date().toISOString().split('T')[0];
+    }
+}
+
+function handleExpenseTypeChange(expenseType) {
+    const employeeSection = document.getElementById('employee-section');
+    const serviceSection = document.getElementById('service-section');
+    
+    // Hide all sections
+    employeeSection.style.display = 'none';
+    serviceSection.style.display = 'none';
+    
+    // Show relevant section
+    if (expenseType === 'monthly') {
+        employeeSection.style.display = 'block';
+    } else if (expenseType === 'service') {
+        serviceSection.style.display = 'block';
+    }
+}
+
+function handleCategoryChange(categoryId) {
+    if (!categoryId) {
+        document.getElementById('tax-calculation').style.display = 'none';
+        document.getElementById('tax-info').textContent = '';
+        return;
+    }
+    
+    // Get category tax rate
+    fetch(`{% url 'main:get_category_tax' %}?category_id=${categoryId}`)
+        .then(response => response.json())
+        .then(data => {
+            const taxInfo = document.getElementById('tax-info');
+            const taxCalculation = document.getElementById('tax-calculation');
+            
+            if (data.tax_rate > 0) {
+                taxInfo.textContent = `Bu kategoriya ${data.tax_rate}% soliq stavkasiga ega`;
+                taxCalculation.style.display = 'block';
+                document.getElementById('tax-rate-display').textContent = data.tax_rate;
+                calculateTotalAmount();
+            } else {
+                taxInfo.textContent = 'Bu kategoriya soliqsiz';
+                taxCalculation.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+function calculateTotalAmount() {
+    const baseAmount = parseFloat(document.getElementById('base_amount').value) || 0;
+    const taxRate = parseFloat(document.getElementById('tax-rate-display').textContent) || 0;
+    
+    const taxAmount = baseAmount * (taxRate / 100);
+    const totalAmount = baseAmount + taxAmount;
+    
+    // Update displays
+    document.getElementById('base-amount-display').textContent = formatNumber(baseAmount) + ' so\'m';
+    document.getElementById('tax-amount-display').textContent = formatNumber(taxAmount) + ' so\'m';
+    document.getElementById('total-amount-display').textContent = formatNumber(totalAmount) + ' so\'m';
+}
+
+function initializeSelect2() {
+    // Employee search
+    $('#employee-select').select2({
+        placeholder: 'Xodimni qidiring...',
+        allowClear: true,
+        ajax: {
+            url: '/ajax/search-employees/',
+            dataType: 'json',
+            delay: 250,
+            data: function(params) {
+                return {
+                    q: params.term
+                };
+            },
+            processResults: function(data) {
+                return data;
+            },
+            cache: true
+        },
+        minimumInputLength: 2
+    });
+    
+    // Service search
+    $('#service-select').select2({
+        placeholder: 'Xizmatni qidiring...',
+        allowClear: true,
+        ajax: {
+            url: '/ajax/search-services/',
+            dataType: 'json',
+            delay: 250,
+            data: function(params) {
+                return {
+                    q: params.term
+                };
+            },
+            processResults: function(data) {
+                return data;
+            },
+            cache: true
+        },
+        minimumInputLength: 2
+    });
+}
+
+function formatNumber(num) {
+    return new Intl.NumberFormat('uz-UZ').format(num);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,151 @@
+<!-- templates/main/employees/employee_edit.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/main/employee.css' %}">
+{% endblock %}
+
+{% block breadcrumb %}
+<span class="breadcrumb-item">Dashboard</span>
+<span class="breadcrumb-separator">/</span>
+<a href="{% url 'main:employee_list' %}" class="breadcrumb-item">Xodimlar</a>
+<span class="breadcrumb-separator">/</span>
+<a href="{% url 'main:employee_detail' employee.id %}" class="breadcrumb-item">{{ employee.first_name }}</a>
+<span class="breadcrumb-separator">/</span>
+<span class="breadcrumb-item active">Tahrirlash</span>
+{% endblock %}
+
+{% block content %}
+<div class="employee-edit-page">
+    
+    <!-- Form Header -->
+    <div class="form-header">
+        <div class="header-content">
+            <h1 class="page-title">
+                <i data-lucide="edit"></i>
+                Xodim ma'lumotlarini tahrirlash
+            </h1>
+            <p class="page-subtitle">{{ employee.first_name }} {{ employee.last_name }}</p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'main:employee_detail' employee.id %}" class="btn btn-outline">
+                <i data-lucide="x"></i>
+                Bekor qilish
+            </a>
+        </div>
+    </div>
+    
+    <!-- Edit Form -->
+    <div class="form-container">
+        <form method="post" class="employee-form">
+            {% csrf_token %}
+            
+            <div class="form-grid">
+                
+                <!-- Personal Information -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h3>
+                            <i data-lucide="user"></i>
+                            Shaxsiy ma'lumotlar
+                        </h3>
+                    </div>
+                    <div class="form-fields">
+                        <div class="form-group">
+                            <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                                <div class="field-error">{{ form.first_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                                <div class="field-error">{{ form.last_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.phone_number.id_for_label }}">{{ form.phone_number.label }}</label>
+                            {{ form.phone_number }}
+                            {% if form.phone_number.errors %}
+                                <div class="field-error">{{ form.phone_number.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Work Information -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h3>
+                            <i data-lucide="briefcase"></i>
+                            Ish ma'lumotlari
+                        </h3>
+                    </div>
+                    <div class="form-fields">
+                        <div class="form-group">
+                            <label for="{{ form.position.id_for_label }}">{{ form.position.label }}</label>
+                            {{ form.position }}
+                            {% if form.position.errors %}
+                                <div class="field-error">{{ form.position.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.hire_date.id_for_label }}">{{ form.hire_date.label }}</label>
+                            {{ form.hire_date }}
+                            {% if form.hire_date.errors %}
+                                <div class="field-error">{{ form.hire_date.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.salary.id_for_label }}">{{ form.salary.label }}</label>
+                            {{ form.salary }}
+                            {% if form.salary.errors %}
+                                <div class="field-error">{{ form.salary.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group checkbox-group">
+                            <div class="checkbox-wrapper">
+                                {{ form.is_active }}
+                                <label for="{{ form.is_active.id_for_label }}" class="checkbox-label">
+                                    {{ form.is_active.label }}
+                                </label>
+                            </div>
+                            {% if form.is_active.errors %}
+                                <div class="field-error">{{ form.is_active.errors.0 }}</div>
+                            {% endif %}
+                            <small class="field-help">Nofaol xodimlar tizimga kira olmaydi</small>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i data-lucide="save"></i>
+                    Saqlash
+                </button>
+                <a href="{% url 'main:employee_detail' employee.id %}" class="btn btn-outline">
+                    <i data-lucide="arrow-left"></i>
+                    Orqaga
+                </a>
+            </div>
+            
+        </form>
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/main/employees.js' %}"></script>
+{% endblock %}

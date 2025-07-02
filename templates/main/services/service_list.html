@@ -1,0 +1,384 @@
+<!-- templates/main/services/service_list.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/main/services.css' %}">
+{% endblock %}
+
+
+
+{% block content %}
+<div class="services-page">
+    
+    <!-- Page Header -->
+    <div class="page-header-modern">
+        <div class="header-content">
+            <h1 class="page-title">
+                <i data-lucide="briefcase"></i>
+                Xizmatlar
+            </h1>
+            <p class="page-subtitle">Loyihalar va xizmatlarni boshqarish</p>
+        </div>
+       
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="stats-grid-modern">
+        <div class="stat-card-modern">
+            <div class="stat-icon primary">
+                <i data-lucide="briefcase"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">{{ total_services }}</div>
+                <div class="stat-label">Jami xizmatlar</div>
+            </div>
+            <div class="stat-trend positive">
+                <i data-lucide="trending-up"></i>
+                <span>+12%</span>
+            </div>
+        </div>
+        
+        <div class="stat-card-modern">
+            <div class="stat-icon success">
+                <i data-lucide="check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">{{ active_services }}</div>
+                <div class="stat-label">Faol xizmatlar</div>
+            </div>
+            <div class="stat-trend positive">
+                <i data-lucide="trending-up"></i>
+                <span>+8%</span>
+            </div>
+        </div>
+        
+        <div class="stat-card-modern">
+            <div class="stat-icon warning">
+                <i data-lucide="trophy"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">{{ won_services }}</div>
+                <div class="stat-label">Yutilgan tenderlar</div>
+            </div>
+            <div class="stat-trend positive">
+                <i data-lucide="trending-up"></i>
+                <span>+15%</span>
+            </div>
+        </div>
+        
+        <div class="stat-card-modern">
+            <div class="stat-icon info">
+                <i data-lucide="clock"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">{{ services|length }}</div>
+                <div class="stat-label">Joriy sahifa</div>
+            </div>
+            <div class="stat-trend neutral">
+                <i data-lucide="minus"></i>
+                <span>0%</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filters Section - Doimo ochiq -->
+    <div class="filters-section-modern">
+        <div class="filters-header">
+            <h3>
+                <i data-lucide="filter"></i>
+                Filterlash
+            </h3>
+        </div>
+        
+        <div class="filters-content" id="filtersContent">
+            <form method="get" class="filters-form" id="filtersForm">
+                <div class="filters-grid">
+                    
+                    <!-- Search -->
+                    <div class="filter-group">
+                        <label>Qidirish</label>
+                        <input type="text" 
+                               name="search" 
+                               value="{{ current_filters.search }}" 
+                               class="form-control"
+                               placeholder="Xizmat yoki kompaniya nomi...">
+                    </div>
+                    
+                    <!-- Tender Status -->
+                    <div class="filter-group">
+                        <label>Tender holati</label>
+                        <select name="tender_status" class="form-control">
+                            <option value="">Barcha holatlar</option>
+                            {% for value, label in tender_choices %}
+                            <option value="{{ value }}" {% if current_filters.tender_status == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Service Type -->
+                    <div class="filter-group">
+                        <label>Xizmat turi</label>
+                        <select name="type" class="form-control">
+                            <option value="">Barcha turlar</option>
+                            {% for value, label in type_choices %}
+                            <option value="{{ value }}" {% if current_filters.type == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Created By -->
+                    <div class="filter-group">
+                        <label>Yaratgan xodim</label>
+                        <select name="created_by" class="form-control">
+                            <option value="">Barcha xodimlar</option>
+                            {% for employee in employees %}
+                            <option value="{{ employee.id }}" {% if current_filters.created_by == employee.id|stringformat:"s" %}selected{% endif %}>
+                                {{ employee.first_name }} {{ employee.last_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+<div class="filter-group">
+    <label>Aktivligi</label>
+    <select name="is_active" class="form-control">
+        <option value="">Barchasi</option>
+        <option value="true" {% if request.GET.is_active == 'true' %}selected{% endif %}>Faol</option>
+        <option value="false" {% if request.GET.is_active == 'false' %}selected{% endif %}>Nofaol</option>
+    </select>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectElement = document.querySelector('select[name="is_active"]');
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Agar hech qanday parametr yo'q bo'lsa, 'true' ni tanlash
+    if (!urlParams.has('is_active') && window.location.search === '') {
+        selectElement.value = 'true';
+        // Va formani avtomatik submit qilish (ixtiyoriy)
+        // selectElement.form.submit();
+    }
+});
+</script>
+</div>
+
+                    
+                    <!-- Payment Status -->
+                    <div class="filter-group">
+                        <label>To'lov holati</label>
+                        <select name="payment_status" class="form-control">
+                            <option value="">Barcha to'lovlar</option>
+                            <option value="paid" {% if current_filters.payment_status == 'paid' %}selected{% endif %}>
+                                To'liq to'langan
+                            </option>
+                            <option value="partial" {% if current_filters.payment_status == 'partial' %}selected{% endif %}>
+                                Qisman to'langan
+                            </option>
+                            <option value="unpaid" {% if current_filters.payment_status == 'unpaid' %}selected{% endif %}>
+                                To'lanmagan
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <!-- Date From -->
+                    <div class="filter-group">
+                        <label>Boshlanish sanasi (dan)</label>
+                        <input type="date" 
+                               name="date_from" 
+                               value="{{ current_filters.date_from }}" 
+                               class="form-control">
+                    </div>
+                    
+                    <!-- Date To -->
+                    <div class="filter-group">
+                        <label>Boshlanish sanasi (gacha)</label>
+                        <input type="date" 
+                               name="date_to" 
+                               value="{{ current_filters.date_to }}" 
+                               class="form-control">
+                    </div>
+                    
+                </div>
+                
+                <div class="filters-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i data-lucide="search"></i>
+                        Filterlash
+                    </button>
+                    <button type="button" class="btn btn-outline clear-filters-btn" id="clearFiltersBtn">
+                        <i data-lucide="x"></i>
+                        Tozalash
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+    
+    <!-- Services Table -->
+    <div class="services-table-container">
+        <div class="table-header-modern">
+            <h3>
+                <i data-lucide="list"></i>
+                Xizmatlar ro'yxati
+            </h3>
+        </div>
+        
+        <div class="table-wrapper-modern">
+            <table class="services-table-modern">
+                <thead>
+                    <tr>
+                        <th>Kompaniya va xizmat</th>
+                        <th>Muddat</th>
+                        <th>Tender holati</th>
+                        <th>To'lov holati</th>
+                        <th>Amallar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for service in services %}
+                    <tr class="service-row" data-service-id="{{ service.id }}">
+                        <td>
+                            <div class="service-info">
+                                <div class="company-name">
+                                    {{ service.company.name|truncatechars:50 }}
+                                </div>
+                                <a href="{% url 'main:service_detail' service.id %}" class="service-name">
+                                    {{ service.name }}
+                                </a>
+                                <div class="service-meta">
+                                    <span class="service-type-badge {{ service.type }}">
+                                        {{ service.get_type_display }}
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="date-info">
+                                <div class="start-date">
+                                    <i data-lucide="play"></i>
+                                    {{ service.started_date|date:'d.m.Y' }}
+                                </div>
+                                {% if service.end_date %}
+                                <div class="end-date">
+                                    <i data-lucide="stop"></i>
+                                    {{ service.end_date|date:'d.m.Y' }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="tender-status-badge {{ service.tender_status }}">
+                                {% if service.tender_status == 'won' %}
+                                    <i data-lucide="trophy"></i>
+                                {% elif service.tender_status == 'lost' %}
+                                    <i data-lucide="x-circle"></i>
+                                {% elif service.tender_status == 'canceled' %}
+                                    <i data-lucide="slash"></i>
+                                {% else %}
+                                    <i data-lucide="clock"></i>
+                                {% endif %}
+                                {{ service.get_tender_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% with total_income=service.get_total_income contract_amount=service.contract_amount %}
+                            {% if contract_amount %}
+                                {% if total_income >= contract_amount %}
+                                <span class="payment-status-badge paid">
+                                    <i data-lucide="check-circle"></i>
+                                    To'liq
+                                </span>
+                                {% elif total_income > 0 %}
+                                <span class="payment-status-badge partial">
+                                    <i data-lucide="clock"></i>
+                                    Qisman
+                                </span>
+                                {% else %}
+                                <span class="payment-status-badge unpaid">
+                                    <i data-lucide="x-circle"></i>
+                                    To'lanmagan
+                                </span>
+                                {% endif %}
+                            {% else %}
+                                <span class="payment-status-badge unknown">
+                                    <i data-lucide="help-circle"></i>
+                                    Noma'lum
+                                </span>
+                            {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td>
+                            <div class="action-buttons-modern">
+                                <a href="{% url 'main:service_detail' service.id %}" 
+                                   class="btn btn-sm btn-outline" title="Ko'rish">
+                                    <img src="/static/icon/view.png" alt="View" width="16" height="16">
+                                </a>
+                                {% if user.employees.position in 'admin,employee' %}
+                                <a href="{% url 'main:service_edit' service.id %}" 
+                                   class="btn btn-sm btn-outline" title="Tahrirlash">
+                                    <img src="/static/icon/edit.png" alt="Edit" width="16" height="16">
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="empty-state-modern">
+                            <div class="empty-content">
+                                <i data-lucide="briefcase"></i>
+                                <h3>Xizmatlar topilmadi</h3>
+                                <p>Filterlash shartlariga mos xizmatlar mavjud emas</p>
+                                
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if services.has_other_pages %}
+        <div class="pagination-modern">
+            <div class="pagination-info">
+                {{ services.start_index }}-{{ services.end_index }} / {{ services.paginator.count }} ta xizmat
+            </div>
+            <nav class="pagination-nav">
+                {% if services.has_previous %}
+                    <a href="?page=1{{ request.GET.urlencode|slice:'5:' }}" class="page-link">
+                        <i data-lucide="chevrons-left"></i>
+                    </a>
+                    <a href="?page={{ services.previous_page_number }}{{ request.GET.urlencode|slice:'5:' }}" class="page-link">
+                        <i data-lucide="chevron-left"></i>
+                    </a>
+                {% endif %}
+                
+                <span class="page-current">
+                    {{ services.number }} / {{ services.paginator.num_pages }}
+                </span>
+                
+                {% if services.has_next %}
+                    <a href="?page={{ services.next_page_number }}{{ request.GET.urlencode|slice:'5:' }}" class="page-link">
+                        <i data-lucide="chevron-right"></i>
+                    </a>
+                    <a href="?page={{ services.paginator.num_pages }}{{ request.GET.urlencode|slice:'5:' }}" class="page-link">
+                        <i data-lucide="chevrons-right"></i>
+                    </a>
+                {% endif %}
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/main/services.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,350 @@
+<!-- templates/main/service_create.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Yangi xizmat qo'shish{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/main/service-form.css' %}">
+<link rel="stylesheet" href="{% static 'css/main/services.css' %}">
+<link rel="stylesheet" href="{% static 'css/main/service-form-additional.css' %}">
+
+
+{% endblock %}
+
+{% block content %}
+<div class="service-form-page">
+    <!-- Form Header -->
+    <div class="form-header-card">
+        <div class="page-title">
+            <i data-lucide="plus-circle"></i>
+            Yangi xizmat qo'shish
+            <p style="font-size: 14px; font-weight: 400; opacity: 0.9; margin: 0;">
+                Kompaniya uchun yangi xizmat yarating
+            </p>
+        </div>
+        <div class="header-actions">
+            {% if company %}
+                <a href="{% url 'main:company_detail' company.id %}" class="btn btn-light">
+                    <i data-lucide="arrow-left"></i>
+                    Orqaga
+                </a>
+            {% else %}
+                <a href="{% url 'main:service_list' %}" class="btn btn-light">
+                    <i data-lucide="arrow-left"></i>
+                    Orqaga
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Form Container -->
+    <div class="form-container">
+        <form class="service-form" method="post" enctype="multipart/form-data" id="serviceCreateForm">
+            {% csrf_token %}
+            
+            <!-- Form Sections -->
+            <div class="form-sections">
+                
+                <!-- Asosiy ma'lumotlar -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h3>
+                            <i data-lucide="info"></i>
+                            Asosiy ma'lumotlar
+                        </h3>
+                        <p class="section-description">Xizmat haqida asosiy ma'lumotlarni kiriting</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="name">Xizmat nomi <span style="color: #dc3545;">*</span></label>
+                                <input type="text" 
+                                       id="name" 
+                                       name="name" 
+                                       class="form-control" 
+                                       placeholder="Xizmat nomini kiriting"
+                                       value="{{ form_data.name|default:'' }}"
+                                       required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="type">Xizmat turi <span style="color: #dc3545;">*</span></label>
+                                <select id="type" name="type" class="form-control" required>
+                                    <option value="">Xizmat turini tanlang</option>
+                                    <option value="contract" {% if form_data.type == 'contract' %}selected{% endif %}>Shartnoma</option>
+                                    <option value="xt_xarid" {% if form_data.type == 'xt_xarid' %}selected{% endif %}>XT-xarid</option>
+                                    <option value="xarid_uzex" {% if form_data.type == 'xarid_uzex' %}selected{% endif %}>xarid.uzex</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="tender_status">Tender holati <span style="color: #dc3545;">*</span></label>
+                                <select id="tender_status" name="tender_status" class="form-control" required>
+                                    <option value="">Tender holatini tanlang</option>
+                                    <option value="won" {% if form_data.tender_status == 'won' %}selected{% endif %}>Yutgan</option>
+                                    <option value="lost" {% if form_data.tender_status == 'lost' %}selected{% endif %}>Yutqazgan</option>
+                                    <option value="canceled" {% if form_data.tender_status == 'canceled' %}selected{% endif %}>Bekor qilingan</option>
+                                    <option value="not_participating" {% if form_data.tender_status == 'not_participating' %}selected{% endif %}>Qatnashmagan</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="contract_amount">Shartnoma summasi</label>
+                                <div class="amount-input-container">
+                                    <input type="number" 
+                                           id="contract_amount" 
+                                           name="contract_amount" 
+                                           class="form-control" 
+                                           placeholder="0"
+                                           step="0.01"
+                                           min="0"
+                                           value="{{ form_data.contract_amount|default:'' }}">
+                                    <span class="currency-label">so'm</span>
+                                </div>
+                                <small class="field-help">Ixtiyoriy. Shartnoma summasi</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kompaniya tanlash -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h3>
+                            <i data-lucide="building-2"></i>
+                            Kompaniya
+                        </h3>
+                        <p class="section-description">Xizmat uchun kompaniya tanlang yoki yangi yarating</p>
+                    </div>
+                    <div class="section-content">
+                        {% if company %}
+                            <!-- Tanlangan kompaniya (readonly) -->
+                            <div class="selected-company">
+                                <div class="company-card readonly">
+                                    <div class="company-icon">
+                                        <i data-lucide="building-2"></i>
+                                    </div>
+                                    <div class="company-details">
+                                        <div class="company-name">{{ company.name }}</div>
+                                        <div class="company-stir">STIR: {{ company.stir }}</div>
+                                        <div class="company-info">
+                                            {% if company.phone_number %}{{ company.phone_number }}{% endif %}
+                                            {% if company.email %} • {{ company.email }}{% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="readonly-indicator">
+                                        <i data-lucide="lock"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="company" value="{{ company.id }}">
+                        {% else %}
+                            <!-- Kompaniya qidirish -->
+                            <div class="form-group">
+                                <label for="company_search">Kompaniya qidirish <span style="color: #dc3545;">*</span></label>
+                                <div class="company-search-container">
+                                    <input type="text" 
+                                           id="company_search" 
+                                           class="form-control company-search-input" 
+                                           placeholder="Kompaniya nomi yoki STIR bo'yicha qidiring..."
+                                           autocomplete="off">
+                                    <i class="search-icon" data-lucide="search"></i>
+                                </div>
+                                <small class="field-help">Kamida 2 ta belgi kiriting</small>
+                            </div>
+                            
+                            <!-- Tanlangan kompaniya -->
+                            <div class="selected-company" style="display: none;">
+                                <div class="company-card">
+                                    <div class="company-icon">
+                                        <i data-lucide="building-2"></i>
+                                    </div>
+                                    <div class="company-details">
+                                        <div class="company-name"></div>
+                                        <div class="company-stir"></div>
+                                        <div class="company-info"></div>
+                                    </div>
+                                    <button type="button" class="remove-company">
+                                        <i data-lucide="x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <input type="hidden" name="company" id="selected_company_id">
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Muddat ma'lumotlari -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h3>
+                            <i data-lucide="calendar"></i>
+                            Muddat ma'lumotlari
+                        </h3>
+                        <p class="section-description">Xizmat muddatlari haqida ma'lumot</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="started_date">Boshlangan sana</label>
+                                <input type="date" 
+                                       id="started_date" 
+                                       name="started_date" 
+                                       class="form-control"
+                                       value="{{ form_data.started_date|default:'' }}">
+                                <small class="field-help">Xizmat boshlangan sana</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="end_date">Tugash sanasi</label>
+                                <input type="date" 
+                                       id="end_date" 
+                                       name="end_date" 
+                                       class="form-control"
+                                       value="{{ form_data.end_date|default:'' }}">
+                                <small class="field-help">Xizmat tugash sanasi</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hujjat yuklash -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h3>
+                            <i data-lucide="file-text"></i>
+                            Shartnoma fayli
+                        </h3>
+                        <p class="section-description">Shartnoma faylini yuklang</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="form-group">
+                            <label for="contract">Shartnoma fayli</label>
+                            <input type="file" 
+                                   id="contract" 
+                                   name="contract" 
+                                   class="form-control"
+                                   accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                            <small class="field-help">PDF, DOC, DOCX, JPG, PNG fayllar qabul qilinadi</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SMS sozlamalari -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h3>
+                            <i data-lucide="message-circle"></i>
+                            SMS xabarnomalar
+                        </h3>
+                        <p class="section-description">SMS xabarnoma sozlamalarini belgilang</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="checkbox-grid">
+                            <div class="checkbox-item">
+                                <input type="checkbox" 
+                                       id="first_sms" 
+                                       name="first_sms" 
+                                       {% if form_data.first_sms or not form_data %}checked{% endif %}>
+                                <label for="first_sms" class="checkbox-label">
+                                    <span class="checkbox-text">Birinchi SMS</span>
+                                    <span class="checkbox-description">Xizmat boshlanganida SMS yuborish</span>
+                                </label>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <input type="checkbox" 
+                                       id="last_month_sms" 
+                                       name="last_month_sms" 
+                                       {% if form_data.last_month_sms or not form_data %}checked{% endif %}>
+                                <label for="last_month_sms" class="checkbox-label">
+                                    <span class="checkbox-text">Oxirgi oy SMS</span>
+                                    <span class="checkbox-description">Muddat tugashidan bir oy oldin SMS</span>
+                                </label>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <input type="checkbox" 
+                                       id="last_sms" 
+                                       name="last_sms" 
+                                       {% if form_data.last_sms or not form_data %}checked{% endif %}>
+                                <label for="last_sms" class="checkbox-label">
+                                    <span class="checkbox-text">Oxirgi SMS</span>
+                                    <span class="checkbox-description">Muddat tugaganda SMS yuborish</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Qo'shimcha ma'lumotlar -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h3>
+                            <i data-lucide="message-square"></i>
+                            Qo'shimcha ma'lumotlar
+                        </h3>
+                        <p class="section-description">Xizmat haqida qo'shimcha izoh</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="form-group">
+                            <label for="comment">Izoh</label>
+                            <textarea id="comment" 
+                                      name="comment" 
+                                      class="form-control" 
+                                      rows="4" 
+                                      placeholder="Xizmat haqida qo'shimcha ma'lumot...">{{ form_data.comment|default:'' }}</textarea>
+                            <small class="field-help">Ixtiyoriy. Xizmat haqida qo'shimcha izoh</small>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                {% if company %}
+                    <a href="{% url 'main:company_detail' company.id %}" class="btn btn-secondary">
+                        <i data-lucide="arrow-left"></i>
+                        Bekor qilish
+                    </a>
+                {% else %}
+                    <a href="{% url 'main:service_list' %}" class="btn btn-secondary">
+                        <i data-lucide="arrow-left"></i>
+                        Bekor qilish
+                    </a>
+                {% endif %}
+                <button type="submit" class="btn btn-primary" id="saveServiceBtn">
+                    <i data-lucide="save"></i>
+                    <span>Xizmatni saqlash</span>
+                    <div class="btn-loader" style="display: none;">
+                        <div class="spinner"></div>
+                    </div>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Company Search Results Modal -->
+<div class="search-results-overlay" id="companySearchResults" style="display: none;">
+    <div class="search-results-container">
+        <div class="search-results-header">
+            <h4>Kompaniyalar</h4>
+            <button type="button" class="close-search" id="closeSearchResults">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="search-results-content" id="searchResultsContent">
+            <!-- Search results will be loaded here -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/main/service-create.js' %}"></script>
+{% endblock %}

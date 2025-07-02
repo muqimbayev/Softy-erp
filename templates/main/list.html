@@ -1,0 +1,881 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .categories-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .categories-header {
+        background: linear-gradient(45deg, #714b67, #8e44ad);
+        color: white;
+        padding: 25px 30px;
+        border-bottom: 3px solid #5a3a54;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .categories-header h2 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+    }
+    
+    .btn-create {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-create:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+    }
+    
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        padding: 25px 30px;
+        background: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 15px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stat-item h4 {
+        margin: 0 0 5px 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+    
+    .stat-item p {
+        margin: 0;
+        color: #6c757d;
+        font-size: 14px;
+    }
+    
+    .stat-item.total {
+        border-left: 4px solid #714b67;
+    }
+    
+    .stat-item.active {
+        border-left: 4px solid #28a745;
+    }
+    
+    .stat-item.inactive {
+        border-left: 4px solid #6c757d;
+    }
+    
+    .stat-item.usage {
+        border-left: 4px solid #17a2b8;
+    }
+    
+    .filters-section {
+        padding: 25px 30px;
+        background: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+    }
+    
+    .filters-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr auto auto;
+        gap: 15px;
+        align-items: end;
+    }
+    
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .filter-group label {
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #495057;
+        font-size: 14px;
+    }
+    
+    .form-control {
+        padding: 10px 15px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #714b67;
+        box-shadow: 0 0 0 3px rgba(113, 75, 103, 0.1);
+        outline: none;
+    }
+    
+    .btn-filter {
+        background: #714b67;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-filter:hover {
+        background: #5a3a54;
+        transform: translateY(-1px);
+    }
+    
+    .btn-clear {
+        background: #6c757d;
+        border: none;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-clear:hover {
+        background: #5a6268;
+    }
+    
+    .bulk-actions {
+        padding: 20px 30px;
+        background: #fff3cd;
+        border-bottom: 2px solid #ffeaa7;
+        display: none;
+    }
+    
+    .bulk-actions.active {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .bulk-info {
+        color: #856404;
+        font-weight: 500;
+    }
+    
+    .bulk-buttons {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn-bulk {
+        border: none;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .btn-bulk.activate {
+        background: #28a745;
+    }
+    
+    .btn-bulk.activate:hover {
+        background: #218838;
+    }
+    
+    .btn-bulk.deactivate {
+        background: #ffc107;
+        color: #212529;
+    }
+    
+    .btn-bulk.deactivate:hover {
+        background: #e0a800;
+    }
+    
+    .btn-bulk.delete {
+        background: #dc3545;
+    }
+    
+    .btn-bulk.delete:hover {
+        background: #c82333;
+    }
+    
+    .categories-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .categories-table th {
+        background: #f8f9fa;
+        padding: 15px 20px;
+        text-align: left;
+        font-weight: 600;
+        color: #495057;
+        border-bottom: 2px solid #e9ecef;
+        font-size: 14px;
+    }
+    
+    .categories-table td {
+        padding: 18px 20px;
+        border-bottom: 1px solid #f1f3f4;
+        vertical-align: middle;
+    }
+    
+    .categories-table tbody tr:hover {
+        background: #f8f9fa;
+    }
+    
+    .category-name {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 16px;
+    }
+    
+    .category-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+    
+    .category-status.active {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .category-status.inactive {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+    
+    .tax-rate {
+        background: #e7f3ff;
+        color: #0c5460;
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-weight: 600;
+        font-size: 14px;
+        display: inline-block;
+    }
+    
+    .usage-stats {
+        color: #6c757d;
+        font-size: 14px;
+    }
+    
+    .usage-amount {
+        color: #28a745;
+        font-weight: 600;
+        display: block;
+        margin-top: 2px;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .btn-action {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .btn-view {
+        background: #17a2b8;
+        color: white;
+    }
+    
+    .btn-view:hover {
+        background: #138496;
+        transform: translateY(-1px);
+    }
+    
+    .btn-edit {
+        background: #ffc107;
+        color: #212529;
+    }
+    
+    .btn-edit:hover {
+        background: #e0a800;
+        transform: translateY(-1px);
+    }
+    
+    .btn-toggle {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .btn-toggle:hover {
+        background: #5a6268;
+        transform: translateY(-1px);
+    }
+    
+    .btn-toggle.activate {
+        background: #28a745;
+    }
+    
+    .btn-toggle.activate:hover {
+        background: #218838;
+    }
+    
+    .btn-delete {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .btn-delete:hover {
+        background: #c82333;
+        transform: translateY(-1px);
+    }
+    
+    .pagination-wrapper {
+        padding: 25px 30px;
+        background: #f8f9fa;
+        border-top: 2px solid #e9ecef;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .pagination-info {
+        color: #6c757d;
+        font-size: 14px;
+    }
+    
+    .pagination {
+        display: flex;
+        gap: 5px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+    
+    .pagination .page-item .page-link {
+        padding: 8px 12px;
+        border: 1px solid #dee2e6;
+        color: #714b67;
+        text-decoration: none;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+    
+    .pagination .page-item.active .page-link {
+        background: #714b67;
+        border-color: #714b67;
+        color: white;
+    }
+    
+    .pagination .page-item .page-link:hover {
+        background: #f8f9fa;
+        border-color: #714b67;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 30px;
+        color: #6c757d;
+    }
+    
+    .empty-state i {
+        font-size: 48px;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+    
+    .empty-state h4 {
+        margin-bottom: 10px;
+        color: #495057;
+    }
+    
+    .quick-actions {
+        padding: 20px 30px;
+        background: #f8f9fa;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    .quick-actions-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .btn-export {
+        background: #28a745;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+    
+    .btn-export:hover {
+        background: #218838;
+        transform: translateY(-1px);
+    }
+    
+    .btn-stats {
+        background: #17a2b8;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+    
+    .btn-stats:hover {
+        background: #138496;
+        transform: translateY(-1px);
+    }
+    
+    @media (max-width: 1200px) {
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .filters-row {
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .filters-row .filter-group:nth-child(n+3) {
+            grid-column: span 2;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .categories-header {
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+        
+        .stats-row {
+            grid-template-columns: 1fr;
+            padding: 20px;
+        }
+        
+        .filters-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .bulk-actions {
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+        
+        .action-buttons {
+            flex-wrap: wrap;
+        }
+        
+        .categories-table {
+            font-size: 14px;
+        }
+        
+        .categories-table th,
+        .categories-table td {
+            padding: 12px 10px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="categories-container">
+                <!-- Header -->
+                <div class="categories-header">
+                    <div>
+                        <h2><i class="fas fa-tags"></i> Xarajat Kategoriyalari</h2>
+                        <p style="margin: 5px 0 0 0; opacity: 0.9;">Xarajatlar uchun kategoriyalarni boshqaring</p>
+                    </div>
+                    <a href="{% url 'main:category_create' %}" class="btn-create">
+                        <i class="fas fa-plus"></i>
+                        Yangi kategoriya
+                    </a>
+                </div>
+                
+                <!-- Stats -->
+                <div class="stats-row">
+                    <div class="stat-item total">
+                        <h4>{{ total_categories }}</h4>
+                        <p>Umumiy</p>
+                    </div>
+                    <div class="stat-item active">
+                        <h4>{{ active_categories }}</h4>
+                        <p>Faol</p>
+                    </div>
+                    <div class="stat-item inactive">
+                        <h4>{{ inactive_categories }}</h4>
+                        <p>Nofaol</p>
+                    </div>
+                    <div class="stat-item usage">
+                        <h4>{{ page_obj.paginator.count }}</h4>
+                        <p>Ko'rsatilmoqda</p>
+                    </div>
+                </div>
+                
+                <!-- Filters -->
+                <div class="filters-section">
+                    <form method="get" class="filters-form">
+                        <div class="filters-row">
+                            <div class="filter-group">
+                                <label>Qidiruv</label>
+                                <input type="text" name="search" class="form-control" 
+                                       placeholder="Kategoriya nomi yoki izoh..." 
+                                       value="{{ search }}">
+                            </div>
+                            <div class="filter-group">
+                                <label>Holat</label>
+                                <select name="is_active" class="form-control">
+                                    <option value="">Barchasi</option>
+                                    <option value="true" {% if is_active == 'true' %}selected{% endif %}>Faol</option>
+                                    <option value="false" {% if is_active == 'false' %}selected{% endif %}>Nofaol</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn-filter">
+                                <i class="fas fa-filter"></i>
+                                Filtrlash
+                            </button>
+                            <a href="{% url 'main:category_list' %}" class="btn-clear">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                
+                <!-- Table -->
+                {% if page_obj.object_list %}
+                <table class="categories-table">
+                    <thead>
+                        <tr>
+                            <th width="40">
+                            </th>
+                            <th>Kategoriya nomi</th>
+                            <th>Soliq foizi</th>
+                            <th>Holat</th>
+                            <th>Ishlatilishi</th>
+                            <th>Yaratilgan</th>
+                            <th width="180">Amallar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category in page_obj.object_list %}
+                        <tr>
+                            <td>
+                                
+                            </td>
+                            <td>
+                                <div class="category-name">{{ category.name }}</div>
+                                {% if category.notes %}
+                                    <div class="usage-stats">{{ category.notes|truncatechars:50 }}</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="tax-rate">{{ category.tax_rate }}%</span>
+                            </td>
+                            <td>
+                                <span class="category-status {% if category.is_active %}active{% else %}inactive{% endif %}">
+                                    <span class="status-dot"></span>
+                                    {% if category.is_active %}Faol{% else %}Nofaol{% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="usage-stats">
+                                    {{ category.expenses_count|default:0 }} ta xarajat
+                                    {% if category.total_amount %}
+                                        <span class="usage-amount">{{ category.total_amount|floatformat:0 }} so'm</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="usage-stats">{{ category.created_date|date:"d.m.Y" }}</div>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    
+                                    <a href="{% url 'main:category_edit' category.id %}" 
+                                       class="btn-action btn-edit" title="Tahrirlash">
+<img src="/static/icon/edit.png" alt="Edit" width="16" height="16">
+                                    </a>
+                        
+                                    {% if category.expenses_count == 0 %}
+                                        <a href="{% url 'main:category_delete' category.id %}" 
+                                           class="btn-action btn-delete" title="O'chirish"
+                                           onclick="return confirm('Kategoriyani o\'chirishni xohlaysizmi?')">
+<img src="/static/icon/delete.png" alt="Edit" width="16" height="16">
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                
+                <!-- Pagination -->
+                {% if page_obj.paginator.num_pages > 1 %}
+                <div class="pagination-wrapper">
+                    <div class="pagination-info">
+                        {{ page_obj.start_index }} - {{ page_obj.end_index }} / {{ page_obj.paginator.count }} ta natija
+                    </div>
+                    <nav>
+                        <ul class="pagination">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1{% if search %}&search={{ search }}{% endif %}{% if is_active %}&is_active={{ is_active }}{% endif %}">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if is_active %}&is_active={{ is_active }}{% endif %}">
+                                        <i class="fas fa-angle-left"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if is_active %}&is_active={{ is_active }}{% endif %}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if is_active %}&is_active={{ is_active }}{% endif %}">
+                                        <i class="fas fa-angle-right"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if is_active %}&is_active={{ is_active }}{% endif %}">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
+                
+                {% else %}
+                <!-- Empty State -->
+                <div class="empty-state">
+                    <i class="fas fa-tags"></i>
+                    <h4>Hech qanday kategoriya topilmadi</h4>
+                    <p>{% if search or is_active %}Filtrlash shartlariga mos natija yo'q{% else %}Hali biron bir kategoriya yaratilmagan{% endif %}</p>
+                    {% if not search and not is_active %}
+                        <a href="{% url 'main:category_create' %}" class="btn-create mt-3">
+                            <i class="fas fa-plus"></i>
+                            Birinchi kategoriyani yarating
+                        </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <div class="quick-actions-row">
+                   
+                        <div>
+                            <a href="{% url 'main:export' %}" class="btn-export">
+                                <i class="fas fa-download"></i>
+                                Eksport (CSV)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSRF Token for AJAX -->
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Select all functionality
+    function toggleSelectAll() {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.category-checkbox');
+        
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAll.checked;
+        });
+        
+        updateBulkActions();
+    }
+    
+    // Update bulk actions visibility
+    function updateBulkActions() {
+        const checkboxes = document.querySelectorAll('.category-checkbox:checked');
+        const bulkActions = document.getElementById('bulkActions');
+        const selectedCount = document.getElementById('selectedCount');
+        
+        if (checkboxes.length > 0) {
+            bulkActions.classList.add('active');
+            selectedCount.textContent = checkboxes.length;
+        } else {
+            bulkActions.classList.remove('active');
+        }
+        
+        // Update select all checkbox
+        const allCheckboxes = document.querySelectorAll('.category-checkbox');
+        const selectAll = document.getElementById('selectAll');
+        selectAll.checked = checkboxes.length === allCheckboxes.length && allCheckboxes.length > 0;
+        selectAll.indeterminate = checkboxes.length > 0 && checkboxes.length < allCheckboxes.length;
+    }
+    
+    // Toggle category status
+    function toggleStatus(categoryId) {
+        if (confirm('Kategoriya holatini o\'zgartirishni xohlaysizmi?')) {
+            fetch(`/expenses-categories/${categoryId}/toggle-status/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: action,
+                    category_ids: categoryIds
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Xatolik: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('Amal bajarishda xatolik yuz berdi');
+                console.error('Error:', error);
+            });
+        }
+    }
+    
+    // Auto-refresh every 60 seconds
+    let autoRefreshInterval = setInterval(() => {
+        location.reload();
+    }, 60000);
+    
+    // Pause auto-refresh when user is interacting
+    document.addEventListener('click', () => {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = setInterval(() => {
+            location.reload();
+        }, 60000);
+    });
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 'a') {
+            e.preventDefault();
+            document.getElementById('selectAll').click();
+        }
+        
+        if (e.key === 'Delete') {
+            const checkedBoxes = document.querySelectorAll('.category-checkbox:checked');
+            if (checkedBoxes.length > 0) {
+                bulkAction('delete');
+            }
+        }
+        
+        if (e.ctrlKey && e.key === 'n') {
+            e.preventDefault();
+            window.location.href = '{% url "main:category_create" %}';
+        }
+    });
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ensure CSRF token is available
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (!csrfToken) {
+            const newToken = document.createElement('input');
+            newToken.type = 'hidden';
+            newToken.name = 'csrfmiddlewaretoken';
+            newToken.value = '{{ csrf_token }}';
+            document.body.appendChild(newToken);
+        }
+        
+        // Initialize tooltips if needed
+        const tooltipElements = document.querySelectorAll('[title]');
+        tooltipElements.forEach(element => {
+            element.setAttribute('data-toggle', 'tooltip');
+        });
+    });
+</script>
+{% endblock %}
+    

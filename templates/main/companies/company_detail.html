@@ -1,0 +1,231 @@
+<!-- templates/main/companies/company_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/main/companies.css' %}">
+{% endblock %}
+
+{% block breadcrumb %}
+
+{% endblock %}
+
+{% block content %}
+<div class="company-detail-page">
+    
+    <!-- Company Header -->
+    <div class="company-header">
+        <div class="company-info">
+            <div class="company-avatar-large">
+                {{ company.name.0|upper }}
+            </div>
+            <div class="company-details">
+                <h1 class="company-name">{{ company.name }}</h1>
+                <div class="company-meta">
+                    <span class="stir-badge">
+                        <i data-lucide="file-text"></i>
+                        STIR: {{ company.stir }}
+                    </span>
+                    {% if company.phone_number %}
+                    <span class="phone-badge">
+                        <i data-lucide="phone"></i>
+                        {{ company.phone_number }}
+                    </span>
+                    {% endif %}
+                </div>
+                {% if company.email %}
+                <div class="company-contact">
+                    <div class="contact-item">
+                        <i data-lucide="mail"></i>
+                        <span>{{ company.email }}</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="company-actions">
+            {% if can_edit %}
+            <a href="{% url 'main:company_edit' company.id %}" class="btn btn-primary">
+                <i data-lucide="edit"></i>
+                Tahrirlash
+            </a>
+            {% endif %}
+            <a href="{% url 'main:company_list' %}" class="btn btn-outline">
+                <i data-lucide="arrow-left"></i>
+                Orqaga
+            </a>
+        </div>
+    </div>
+    
+    <!-- Company Info Grid -->
+    <div class="info-grid">
+        
+        <!-- Company Information -->
+        <div class="info-card">
+            <div class="card-header">
+                <h3>
+                    <i data-lucide="building"></i>
+                    Kompaniya ma'lumotlari
+                </h3>
+            </div>
+            <div class="card-content">
+                <div class="info-row">
+                    <label>Nomi:</label>
+                    <span>{{ company.name }}</span>
+                </div>
+                <div class="info-row">
+                    <label>STIR:</label>
+                    <span>{{ company.stir }}</span>
+                </div>
+                {% if company.full_name %}
+                <div class="info-row">
+                    <label>Mas'ul shaxs:</label>
+                    <span>{{ company.full_name }}</span>
+                </div>
+                {% endif %}
+                <div class="info-row">
+                    <label>Telefon:</label>
+                    <span>{{ company.phone_number|default:'—' }}</span>
+                </div>
+                <div class="info-row">
+                    <label>Email:</label>
+                    <span>{{ company.email|default:'—' }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Creation Info -->
+        <div class="info-card">
+            <div class="card-header">
+                <h3>
+                    <i data-lucide="calendar"></i>
+                    Yaratilish ma'lumotlari
+                </h3>
+            </div>
+            <div class="card-content">
+                <div class="info-row">
+                    <label>Yaratilgan sana:</label>
+                    <span>{{ company.created_date|date:'d F Y, H:i' }}</span>
+                </div>
+                <div class="info-row">
+                    <label>Kim tomonidan:</label>
+                    <span>
+                        {% if company.created_by %}
+                            {{ company.created_by.first_name }} {{ company.created_by.last_name }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </span>
+                </div>
+                {% if company.updated_by %}
+                <div class="info-row">
+                    <label>Yangilangan:</label>
+                    <span>{{ company.update_date|date:'d F Y, H:i' }}</span>
+                </div>
+                <div class="info-row">
+                    <label>Kim yangilagan:</label>
+                    <span>{{ company.updated_by.first_name }} {{ company.updated_by.last_name }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Comment -->
+        {% if company.comment %}
+        <div class="info-card full-width">
+            <div class="card-header">
+                <h3>
+                    <i data-lucide="message-square"></i>
+                    Izoh
+                </h3>
+            </div>
+            <div class="card-content">
+                <div class="comment-text">{{ company.comment }}</div>
+            </div>
+        </div>
+        {% endif %}
+        
+    </div>
+    
+    <!-- Services Section -->
+    <div class="services-section">
+        <div class="services-header">
+            <div class="header-content">
+                <h2>
+                    <i data-lucide="briefcase"></i>
+                    Kompaniyaga ko'rsatilgan xizmatlari
+                </h2>
+                <p>Bu kompaniya uchun yaratilgan barcha xizmatlar</p>
+            </div>
+            {% if can_edit %}
+            <div class="header-actions">
+                         <a href="{% url 'main:service_create_with_company' company.pk %}" class="btn btn-primary btn-sm">
+                <i data-lucide="plus"></i>
+                Yangi xizmat
+            </a>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="services-list">
+    {% for service in services %}
+    <div class="service-card">
+        <div class="service-info">
+            <div class="service-icon">
+                <i data-lucide="briefcase"></i>
+            </div>
+            <div class="service-details">
+                <a href="/services/{{ service.id }}" class="service-name">{{ service.name }}</a>
+                <div class="service-meta space-y-1">
+                    <!-- Tender status -->
+                    <span class="service-status badge
+                        {% if service.tender_status == 'won' %} bg-green-100 text-green-800
+                        {% elif service.tender_status == 'lost' %} bg-red-100 text-red-800
+                        {% elif service.tender_status == 'in_progress' %} bg-yellow-100 text-yellow-800
+                        {% else %} bg-gray-100 text-gray-800 {% endif %}
+                        px-2 py-1 rounded text-sm inline-flex items-center gap-1">
+                        {% if service.tender_status == 'won' %}
+                            <i data-lucide="check-circle" class="w-4 h-4"></i> Yutdi
+                        {% elif service.tender_status == 'lost' %}
+                            <i data-lucide="x-circle" class="w-4 h-4"></i> Yutqazdi
+                        {% elif service.tender_status == 'in_progress' %}
+                            <i data-lucide="clock" class="w-4 h-4"></i> Jarayonda
+                        {% else %}
+                            <i data-lucide="minus-circle" class="w-4 h-4"></i> Ishtirok etmaydi
+                        {% endif %}
+                    </span>
+
+                    <!-- Boshlanish sanasi -->
+                    <span class="service-date text-gray-600 text-sm inline-flex items-center gap-1">
+                        <i data-lucide="calendar" class="w-4 h-4"></i>
+                        {{ service.started_date|date:'d.m.Y' }}
+                    </span>
+
+                    <!-- Aktivlik holati -->
+                    <span class="service-active badge
+                        {% if service.is_active %} bg-green-50 text-green-700
+                        {% else %} bg-red-50 text-red-700 {% endif %}
+                        px-2 py-1 rounded text-sm inline-flex items-center gap-1">
+                        {% if service.is_active %}
+                            <i data-lucide="activity" class="w-4 h-4"></i> Faol
+                        {% else %}
+                            <i data-lucide="ban" class="w-4 h-4"></i> Nofaol
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-gray-500 text-center mt-4">Xizmatlar topilmadi.</p>
+    {% endfor %}
+</div>
+
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/main/companies.js' %}"></script>
+{% endblock %}

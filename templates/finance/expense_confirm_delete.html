@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+
+{% block title %}Xarajatni o'chirish{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link href="{% static 'css/main/finance.css' %}" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="finance-container">
+    <div class="confirm-delete-container" data-back-url="{% url 'main:expense_detail' expense.pk %}">
+        <div class="confirm-card">
+            <div class="confirm-header">
+                <div class="warning-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h2>Xarajatni o'chirish</h2>
+                <p>Bu amalni qaytarib bo'lmaydi</p>
+            </div>
+            
+            <div class="confirm-content">
+                <div class="expense-summary">
+                    <h3>O'chiriladigan xarajat:</h3>
+                    
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <label>Nomi:</label>
+                            <span>{{ expense.title }}</span>
+                        </div>
+                        
+                        <div class="summary-item">
+                            <label>Miqdor:</label>
+                            <span class="amount-highlight">{{ expense.amount|floatformat:0 }} so'm</span>
+                        </div>
+                        
+                        <div class="summary-item">
+                            <label>Sana:</label>
+                            <span>{{ expense.date|date:"d F Y" }}</span>
+                        </div>
+                        
+                        <div class="summary-item">
+                            <label>Kategoriya:</label>
+                            <span>{{ expense.category.name }}</span>
+                        </div>
+                        
+                        {% if expense.employee %}
+                        <div class="summary-item">
+                            <label>Xodim:</label>
+                            <span>{{ expense.employee.first_name }} {{ expense.employee.last_name }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if expense.service %}
+                        <div class="summary-item">
+                            <label>Xizmat:</label>
+                            <span>{{ expense.service.name }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="warning-message">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Bu xarajat butunlay o'chirib tashlanadi va uni qaytarib bo'lmaydi. Barcha bog'liq ma'lumotlar ham yo'qoladi.</p>
+                </div>
+            </div>
+            
+            <div class="confirm-actions">
+                <form method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger confirm-btn">
+                        <i class="fas fa-trash"></i>
+                        Ha, o'chirish
+                    </button>
+                </form>
+                
+                <a href="{% url 'main:expense_detail' expense.pk %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times"></i>
+                    Bekor qilish
+                </a>
+                
+                <a href="{% url 'main:expenses_list' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-list"></i>
+                    Ro'yxatga qaytish
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.confirm-delete-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    padding: 20px;
+}
+
+.confirm-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    overflow: hidden;
+    max-width: 500px;
+    width: 100%;
+    animation: slideInUp 0.3s ease-out;
+}
+
+.confirm-header {
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    padding: 30px;
+    text-align: center;
+    border-bottom: 1px solid #fecaca;
+}
+
+.warning-icon {
+    width: 60px;
+    height: 60px;
+    background: #ef4444;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 24px;
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+.confirm-header h2 {
+    margin: 0 0 8px 0;
+    color: #991b1b;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.confirm-header p {
+    margin: 0;
+    color: #7f1d1d;
+    font-size: 14px;
+}
+
+.confirm-content {
+    padding: 30px;
+}
+
+.expense-summary h3 {
+    margin: 0 0 20px 0;
+    color: #1f2937;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.summary-grid {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+}
+
+.summary-item label {
+    font-weight: 500;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.summary-item span {
+    font-weight: 500;
+    color: #1f2937;
+    font-size: 14px;
+}
+
+.amount-highlight {
+    color: #dc2626 !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+}
+
+.warning-message {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    background: #fffbeb;
+    border: 1px solid #fbbf24;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.warning-message i {
+    color: #d97706;
+    font-size: 18px;
+    margin-top: 2px;
+}
+
+.warning-message p {
+    margin: 0;
+    color: #92400e;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.confirm-actions {
+    padding: 20px 30px 30px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.confirm-btn {
+    min-width: 140px;
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+}
+
+.confirm-btn:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@media (max-width: 600px) {
+    .confirm-actions {
+        flex-direction: column;
+    }
+    
+    .confirm-actions .btn {
+        width: 100%;
+    }
+    
+    .summary-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Add keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Escape key - cancel
+    if (e.key === 'Escape') {
+        const backUrl = document.querySelector('[data-back-url]').getAttribute('data-back-url');
+        window.location.href = backUrl;
+    }
+    
+    // Enter key - confirm (with Ctrl/Cmd)
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        document.querySelector('.confirm-btn').click();
+    }
+});
+
+// Add loading state to confirm button
+document.querySelector('form').addEventListener('submit', function() {
+    const submitBtn = this.querySelector('.confirm-btn');
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> O\'chirilmoqda...';
+    submitBtn.disabled = true;
+});
+</script>
+{% endblock %}

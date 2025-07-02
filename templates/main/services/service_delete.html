@@ -1,0 +1,397 @@
+<!-- templates/main/service_delete.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Xizmatni o'chirish - {{ service.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/main/service-form.css' %}">
+<style>
+.delete-page {
+    padding: 24px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.delete-header {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 32px;
+    color: white;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(220, 53, 69, 0.3);
+}
+
+.delete-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+}
+
+.delete-subtitle {
+    font-size: 14px;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.delete-container {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.delete-content {
+    padding: 32px;
+}
+
+.service-info {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    border-left: 4px solid #dc3545;
+}
+
+.service-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.service-detail:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.detail-value {
+    font-weight: 500;
+    color: #2c3e50;
+    text-align: right;
+}
+
+.warning-box {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border: 1px solid #ffeaa7;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.warning-icon {
+    color: #856404;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.warning-content h4 {
+    color: #856404;
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.warning-content p {
+    color: #856404;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.delete-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    padding-top: 24px;
+    border-top: 1px solid #e9ecef;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.related-data {
+    background: #fff5f5;
+    border: 1px solid #fed7d7;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 16px;
+}
+
+.related-data h5 {
+    color: #c53030;
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.related-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.related-list li {
+    padding: 4px 0;
+    font-size: 13px;
+    color: #721c24;
+}
+
+@media (max-width: 768px) {
+    .delete-page {
+        padding: 16px;
+    }
+    
+    .delete-content {
+        padding: 24px 20px;
+    }
+    
+    .delete-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .service-detail {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    
+    .detail-value {
+        text-align: left;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="delete-page">
+    <!-- Delete Header -->
+    <div class="delete-header">
+        <div class="delete-icon">
+            <i data-lucide="trash-2"></i>
+        </div>
+        <h1 class="delete-title">Xizmatni o'chirish</h1>
+        <p class="delete-subtitle">Bu amalni qaytarib bo'lmaydi</p>
+    </div>
+
+    <!-- Delete Container -->
+    <div class="delete-container">
+        <div class="delete-content">
+            
+            <!-- Service Information -->
+            <div class="service-info">
+                <h3 style="margin: 0 0 16px 0; color: #2c3e50; font-size: 18px;">
+                    <i data-lucide="info"></i>
+                    Xizmat ma'lumotlari
+                </h3>
+                
+                <div class="service-detail">
+                    <span class="detail-label">Nomi:</span>
+                    <span class="detail-value">{{ service.name }}</span>
+                </div>
+                
+                <div class="service-detail">
+                    <span class="detail-label">Kompaniya:</span>
+                    <span class="detail-value">{{ service.company.name }}</span>
+                </div>
+                
+                <div class="service-detail">
+                    <span class="detail-label">Turi:</span>
+                    <span class="detail-value">{{ service.get_type_display }}</span>
+                </div>
+                
+                <div class="service-detail">
+                    <span class="detail-label">Tender holati:</span>
+                    <span class="detail-value">{{ service.get_tender_status_display }}</span>
+                </div>
+                
+                {% if service.contract_amount %}
+                <div class="service-detail">
+                    <span class="detail-label">Shartnoma summasi:</span>
+                    <span class="detail-value">{{ service.contract_amount|floatformat:0 }} so'm</span>
+                </div>
+                {% endif %}
+                
+                {% if service.started_date %}
+                <div class="service-detail">
+                    <span class="detail-label">Boshlangan sana:</span>
+                    <span class="detail-value">{{ service.started_date|date:"d.m.Y" }}</span>
+                </div>
+                {% endif %}
+                
+                {% if service.end_date %}
+                <div class="service-detail">
+                    <span class="detail-label">Tugash sanasi:</span>
+                    <span class="detail-value">{{ service.end_date|date:"d.m.Y" }}</span>
+                </div>
+                {% endif %}
+                
+                <div class="service-detail">
+                    <span class="detail-label">Yaratilgan:</span>
+                    <span class="detail-value">{{ service.created_at|date:"d.m.Y H:i" }}</span>
+                </div>
+            </div>
+
+            <!-- Warning Box -->
+            <div class="warning-box">
+                <i class="warning-icon" data-lucide="alert-triangle"></i>
+                <div class="warning-content">
+                    <h4>Diqqat!</h4>
+                    <p>
+                        Bu xizmatni o'chirishdan oldin quyidagilarni hisobga oling:
+                    </p>
+                    <ul style="margin: 8px 0 0 16px; padding: 0;">
+                        <li>Barcha bog'liq ma'lumotlar ham o'chiriladi</li>
+                        <li>Bu amalni qaytarib bo'lmaydi</li>
+                        <li>Hisobotlarda bu xizmat ko'rinmay qoladi</li>
+                        <li>Fayl va hujjatlar ham o'chiriladi</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Related Data Warning -->
+            {% if service.incomes.exists or service.expenses.exists or service.status_history.exists %}
+            <div class="related-data">
+                <h5>
+                    <i data-lucide="link"></i>
+                    Bog'liq ma'lumotlar
+                </h5>
+                <ul class="related-list">
+                    {% if service.incomes.exists %}
+                        <li>• {{ service.incomes.count }} ta daromad yozuvi</li>
+                    {% endif %}
+                    {% if service.expenses.exists %}
+                        <li>• {{ service.expenses.count }} ta xarajat yozuvi</li>
+                    {% endif %}
+                    {% if service.status_history.exists %}
+                        <li>• {{ service.status_history.count }} ta holat tarixi</li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <!-- Delete Form -->
+            <form method="post">
+                {% csrf_token %}
+                
+                <!-- Confirmation Checkbox -->
+                <div style="margin: 24px 0;">
+                    <label class="checkbox-item" style="border: 2px solid #dc3545; background: #fff5f5;">
+                        <input type="checkbox" id="confirmDelete" required>
+                        <label for="confirmDelete" class="checkbox-label">
+                            <span class="checkbox-text" style="color: #721c24;">
+                                Men bu xizmatni butunlay o'chirishni tasdiqlayman
+                            </span>
+                            <span class="checkbox-description" style="color: #721c24;">
+                                Bu amalni qaytarib bo'lmasligini tushunaman
+                            </span>
+                        </label>
+                    </label>
+                </div>
+
+                <!-- Delete Actions -->
+                <div class="delete-actions">
+                    <a href="{% url 'main:service_detail' service.id %}" class="btn btn-secondary">
+                        <i data-lucide="arrow-left"></i>
+                        Bekor qilish
+                    </a>
+                    
+                    <button type="submit" class="btn btn-danger" id="deleteBtn" disabled>
+                        <i data-lucide="trash-2"></i>
+                        <span>O'chirish</span>
+                        <div class="btn-loader" style="display: none;">
+                            <div class="spinner"></div>
+                        </div>
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmCheckbox = document.getElementById('confirmDelete');
+    const deleteBtn = document.getElementById('deleteBtn');
+    const form = document.querySelector('form');
+    
+    // Enable/disable delete button based on checkbox
+    confirmCheckbox.addEventListener('change', function() {
+        deleteBtn.disabled = !this.checked;
+        
+        if (this.checked) {
+            deleteBtn.classList.remove('btn-disabled');
+        } else {
+            deleteBtn.classList.add('btn-disabled');
+        }
+    });
+    
+    // Form submission with confirmation
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (!confirmCheckbox.checked) {
+            alert('Iltimos, tasdiqlash belgisini qo\'ying');
+            return;
+        }
+        
+        // Show loading state
+        deleteBtn.disabled = true;
+        deleteBtn.querySelector('span').textContent = 'O\'chirilmoqda...';
+        deleteBtn.querySelector('.btn-loader').style.display = 'block';
+        
+        // Submit form
+        this.submit();
+    });
+    
+    // Initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+});
+</script>
+{% endblock %}

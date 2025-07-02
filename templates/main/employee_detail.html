@@ -1,0 +1,184 @@
+<!-- templates/main/employees/employee_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/main/employee.css' %}">
+{% endblock %}
+
+{% block breadcrumb %}
+<span class="breadcrumb-item">Dashboard</span>
+<span class="breadcrumb-separator">/</span>
+<a href="{% url 'main:employee_list' %}" class="breadcrumb-item">Xodimlar</a>
+<span class="breadcrumb-separator">/</span>
+<span class="breadcrumb-item active">{{ employee.first_name }} {{ employee.last_name }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="employee-detail-page">
+    
+    <!-- Employee Header -->
+    <div class="employee-header">
+        <div class="employee-info">
+            <div class="employee-avatar-large">
+                {{ employee.first_name.0|upper }}{{ employee.last_name.0|upper }}
+            </div>
+            <div class="employee-details">
+                <h1 class="employee-name">{{ employee.first_name }} {{ employee.last_name }}</h1>
+                <div class="employee-meta">
+                    <span class="position-badge {{ employee.position }}">
+                        {{ employee.get_position_display }}
+                    </span>
+                    <span class="status-badge {% if employee.is_active %}active{% else %}inactive{% endif %}">
+                        <i data-lucide="{% if employee.is_active %}check-circle{% else %}x-circle{% endif %}"></i>
+                        {% if employee.is_active %}Faol{% else %}Nofaol{% endif %}
+                    </span>
+                </div>
+                <div class="employee-contact">
+                    {% if employee.phone_number %}
+                    <div class="contact-item">
+                        <i data-lucide="phone"></i>
+                        <span>{{ employee.phone_number }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="contact-item">
+                        <i data-lucide="mail"></i>
+                        <span>{{ employee.user.username }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="employee-actions">
+            <a href="{% url 'main:employee_edit' employee.id %}" class="btn btn-primary">
+                <i data-lucide="edit"></i>
+                Tahrirlash
+            </a>
+            <a href="{% url 'main:employee_password_change' employee.id %}" class="btn btn-outline">
+                <i data-lucide="key"></i>
+                Parolni o'zgartirish
+            </a>
+            <a href="{% url 'main:employee_list' %}" class="btn btn-outline">
+                <i data-lucide="arrow-left"></i>
+                Orqaga
+            </a>
+        </div>
+    </div>
+    
+    <!-- Employee Info Cards -->
+    <div class="info-grid">
+        
+        <!-- Personal Info -->
+        <div class="info-card">
+            <div class="card-header">
+                <h3>
+                    <i data-lucide="user"></i>
+                    Shaxsiy ma'lumotlar
+                </h3>
+            </div>
+            <div class="card-content">
+                <div class="info-row">
+                    <label>Ism:</label>
+                    <span>{{ employee.first_name }}</span>
+                </div>
+                <div class="info-row">
+                    <label>Familiya:</label>
+                    <span>{{ employee.last_name }}</span>
+                </div>
+                <div class="info-row">
+                    <label>Telefon:</label>
+                    <span>{{ employee.phone_number|default:'—' }}</span>
+                </div>
+                <div class="info-row">
+                    <label>Username:</label>
+                    <span>{{ employee.user.username }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Work Info -->
+        <div class="info-card">
+            <div class="card-header">
+                <h3>
+                    <i data-lucide="briefcase"></i>
+                    Ish ma'lumotlari
+                </h3>
+            </div>
+            <div class="card-content">
+                <div class="info-row">
+                    <label>Lavozim:</label>
+                    <span class="position-badge {{ employee.position }}">
+                        {{ employee.get_position_display }}
+                    </span>
+                </div>
+                <div class="info-row">
+                    <label>Ishga kirgan sana:</label>
+                    <span>{{ employee.hire_date|date:'d F Y' }}</span>
+                </div>
+                <div class="info-row">
+                    <label>Ish tajribasi:</label>
+                    <span>{{ employee.hire_date|timesince }}</span>
+                </div>
+
+<div class="info-row">
+    <label>Oylik maoshi:</label>
+    <span id="salary">{{ employee.salary }}</span>
+</div>
+
+<script>
+    const el = document.getElementById("salary");
+    let val = el.innerText.trim().replace(/,/g, ''); // avval vergullarni olib tashla
+    if (!isNaN(val) && val !== "") {
+        el.innerText = Number(val).toLocaleString("en-US");  // 7000000 → 7,000,000
+    }
+</script>
+
+
+
+                <div class="info-row">
+                    <label>Holat:</label>
+                    <span class="status-badge {% if employee.is_active %}active{% else %}inactive{% endif %}">
+                        <i data-lucide="{% if employee.is_active %}check-circle{% else %}x-circle{% endif %}"></i>
+                        {% if employee.is_active %}Faol{% else %}Nofaol{% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Account Info -->
+        <div class="info-card">
+            <div class="card-header">
+                <h3>
+                    <i data-lucide="settings"></i>
+                    Hisob ma'lumotlari
+                </h3>
+            </div>
+            <div class="card-content">
+                <div class="info-row">
+                    <label>Ro'yxatdan o'tgan:</label>
+                    <span>{{ employee.user.date_joined|date:'d F Y' }}</span>
+                </div>
+                <div class="info-row">
+                    <label>Oxirgi kirish:</label>
+                    <span>
+                        {% if employee.user.last_login %}
+                            {{ employee.user.last_login|date:'d F Y, H:i' }}
+                        {% else %}
+                            Hech qachon
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="info-row">
+                    <label>Parol o'zgartirilgan:</label>
+                    <span>{{ employee.user.date_joined|date:'d F Y' }}</span>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/main/employee.js' %}"></script>
+{% endblock %}

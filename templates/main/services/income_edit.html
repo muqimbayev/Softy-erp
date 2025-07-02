@@ -1,0 +1,252 @@
+<!-- templates/main/services/income_edit.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/main/income-form.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="income-form-page">
+    <!-- Form Header -->
+    <div class="form-header-card">
+        <div class="page-title">
+            <i data-lucide="edit-3"></i>
+            Daromadni tahrirlash
+            <p style="font-size: 14px; font-weight: 400; opacity: 0.9; margin: 0;">
+                {{ service.name }} xizmati uchun daromad ma'lumotlarini yangilang
+            </p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'main:service_detail' income.service.id %}" class="btn btn-light">
+                <i data-lucide="arrow-left"></i>
+                Orqaga
+            </a>
+        </div>
+    </div>
+
+    <!-- Current Income Info -->
+    <div class="current-income-info">
+        <div class="income-summary">
+            <div class="summary-item">
+                <span class="summary-label">Joriy miqdor</span>
+                <span class="summary-value">{{ income.amount|floatformat:0 }} so'm</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Joriy holat</span>
+                <span class="summary-value status-{{ income.status }}">{{ income.get_status_display }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Yaratilgan</span>
+                <span class="summary-value">{{ income.created_date|date:"d.m.Y H:i" }}</span>
+            </div>
+            {% if income.updated_by %}
+            <div class="summary-item">
+                <span class="summary-label">Oxirgi yangilanish</span>
+                <span class="summary-value">{{ income.update_date|date:"d.m.Y H:i" }} ({{ income.updated_by.get_full_name }})</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Service Info -->
+    <div class="service-info-card">
+        <div class="service-summary">
+            <div class="summary-item">
+                <span class="summary-label">Xizmat nomi</span>
+                <span class="summary-value">{{ service.name }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Kompaniya</span>
+                <span class="summary-value">{{ service.company.name }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Turi</span>
+                <span class="summary-value">{{ service.get_type_display }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Holati</span>
+                <span class="summary-value status-{{ service.tender_status }}">
+                    {{ service.get_tender_status_display }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Container -->
+    <div class="form-container">
+        <form class="income-form" method="post" id="incomeEditForm">
+            {% csrf_token %}
+            
+            <!-- Form Sections -->
+            <div class="form-sections">
+                
+                <!-- To'lov ma'lumotlari -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h3>
+                            <i data-lucide="dollar-sign"></i>
+                            To'lov ma'lumotlari
+                        </h3>
+                        <p class="section-description">Daromad miqdori va to'lov ma'lumotlari</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="{{ form.amount.id_for_label }}">
+                                    {{ form.amount.label }} <span class="text-danger">*</span>
+                                </label>
+                                <div class="amount-input-container">
+                                    {{ form.amount }}
+                                    <span class="currency-label">so'm</span>
+                                </div>
+                                {% if form.amount.errors %}
+                                    <div class="field-error">{{ form.amount.errors.0 }}</div>
+                                {% endif %}
+                                <small class="field-help">Daromad miqdorini kiriting</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <!-- Bo'sh joy -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- To'lov holati va usuli -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h3>
+                            <i data-lucide="credit-card"></i>
+                            To'lov tafsilotlari
+                        </h3>
+                        <p class="section-description">To'lov holati va usuli haqida ma'lumot</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="form-row">
+                            <div class="form-group" id="statusGroup">
+                                <label for="{{ form.status.id_for_label }}">
+                                    {{ form.status.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.status }}
+                                {% if form.status.errors %}
+                                    <div class="field-error">{{ form.status.errors.0 }}</div>
+                                {% endif %}
+                                <small class="field-help">To'lov holatini tanlang</small>
+                            </div>
+                            
+                            <div class="form-group" id="paymentMethodGroup">
+                                <label for="{{ form.payment_method.id_for_label }}">
+                                    {{ form.payment_method.label }} <span class="text-danger conditional-required">*</span>
+                                </label>
+                                {{ form.payment_method }}
+                                {% if form.payment_method.errors %}
+                                    <div class="field-error">{{ form.payment_method.errors.0 }}</div>
+                                {% endif %}
+                                <small class="field-help">To'lov usulini tanlang</small>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group" id="paymentDateGroup">
+                                <label for="{{ form.payment_date.id_for_label }}">
+                                    {{ form.payment_date.label }} <span class="text-danger conditional-required">*</span>
+                                </label>
+                                {{ form.payment_date }}
+                                {% if form.payment_date.errors %}
+                                    <div class="field-error">{{ form.payment_date.errors.0 }}</div>
+                                {% endif %}
+                                <small class="field-help">To'lov sanasini kiriting</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <!-- Bo'sh joy -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Qo'shimcha ma'lumotlar -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h3>
+                            <i data-lucide="message-square"></i>
+                            Qo'shimcha ma'lumotlar
+                        </h3>
+                        <p class="section-description">To'lov haqida qo'shimcha izoh</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="form-group">
+                            <label for="{{ form.notes.id_for_label }}">
+                                {{ form.notes.label }}
+                            </label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                                <div class="field-error">{{ form.notes.errors.0 }}</div>
+                            {% endif %}
+                            <small class="field-help">Ixtiyoriy. To'lov haqida qo'shimcha ma'lumot</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hisob-kitob -->
+                <div class="form-section" id="calculationSection">
+                    <div class="section-header">
+                        <h3>
+                            <i data-lucide="calculator"></i>
+                            Hisob-kitob
+                        </h3>
+                        <p class="section-description">Daromad ma'lumotlari</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="calculation-grid">
+                            <div class="calc-item highlight">
+                                <span class="calc-label">Daromad miqdori:</span>
+                                <span class="calc-value" id="totalAmount">{{ income.amount|floatformat:0 }} so'm</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+            <a href="{% url 'main:service_detail' income.service.id %}" class="btn btn-light">
+                    <i data-lucide="arrow-left"></i>
+                    Bekor qilish
+                </a>
+                <button type="submit" class="btn btn-primary" id="updateIncomeBtn">
+                    <i data-lucide="save"></i>
+                    <span>O'zgarishlarni saqlash</span>
+                    <div class="btn-loader" style="display: none;">
+                        <div class="spinner"></div>
+                    </div>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Initialize form with edit-specific settings
+document.addEventListener('DOMContentLoaded', function() {
+    // Use the same IncomeForm class but with edit mode
+    const incomeForm = new IncomeForm();
+    incomeForm.saveBtn = document.getElementById('updateIncomeBtn');
+    incomeForm.form = document.getElementById('incomeEditForm');
+    
+    // Set initial state based on current values
+    incomeForm.handleStatusChange();
+    incomeForm.calculateAmounts();
+    
+    // Initialize keyboard shortcuts
+    incomeForm.initKeyboardShortcuts();
+});
+</script>
+<script src="{% static 'js/main/income-form.js' %}"></script>
+{% endblock %}

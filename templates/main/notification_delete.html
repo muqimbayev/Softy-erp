@@ -1,0 +1,437 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .delete-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .delete-header {
+        background: linear-gradient(45deg, #dc3545, #c82333);
+        color: white;
+        padding: 25px 30px;
+        border-bottom: 3px solid #bd2130;
+        text-align: center;
+    }
+    
+    .delete-header i {
+        font-size: 48px;
+        margin-bottom: 15px;
+        opacity: 0.9;
+    }
+    
+    .delete-header h2 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+    }
+    
+    .delete-body {
+        padding: 30px;
+    }
+    
+    .warning-message {
+        background: #fff3cd;
+        border: 2px solid #ffc107;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 25px;
+        text-align: center;
+    }
+    
+    .warning-message i {
+        font-size: 32px;
+        color: #856404;
+        margin-bottom: 15px;
+    }
+    
+    .warning-message h4 {
+        color: #856404;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+    
+    .warning-message p {
+        color: #856404;
+        margin: 0;
+        font-size: 16px;
+    }
+    
+    .notification-details {
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+    
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+    
+    .detail-label {
+        font-weight: 600;
+        color: #495057;
+        flex: 0 0 140px;
+    }
+    
+    .detail-value {
+        color: #2c3e50;
+        flex: 1;
+        text-align: right;
+    }
+    
+    .notification-type {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+    
+    .notification-type.first {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .notification-type.last-month {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .notification-type.last {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .notification-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    
+    .notification-status.sent {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .notification-status.pending {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+    
+    .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+    
+    .message-preview {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 15px;
+        color: #495057;
+        line-height: 1.6;
+        font-style: italic;
+        max-height: 120px;
+        overflow-y: auto;
+    }
+    
+    .delete-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 25px 30px;
+        background: #f8f9fa;
+        border-top: 2px solid #e9ecef;
+        gap: 15px;
+    }
+    
+    .btn-danger {
+        background: linear-gradient(45deg, #dc3545, #c82333);
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    
+    .btn-danger:hover {
+        background: linear-gradient(45deg, #c82333, #bd2130);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+    
+    .impact-warning {
+        background: #f8d7da;
+        border: 2px solid #dc3545;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+    
+    .impact-warning h5 {
+        color: #721c24;
+        margin-bottom: 10px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .impact-warning ul {
+        color: #721c24;
+        margin: 0;
+        padding-left: 20px;
+    }
+    
+    .impact-warning li {
+        margin-bottom: 5px;
+    }
+    
+    .sent-warning {
+        background: #fff3cd;
+        border: 2px solid #ffc107;
+        border-radius: 10px;
+        padding: 15px 20px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .sent-warning i {
+        color: #856404;
+        font-size: 20px;
+    }
+    
+    .sent-warning p {
+        margin: 0;
+        color: #856404;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="delete-container">
+                <!-- Header -->
+                <div class="delete-header">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h2>Bildirishnomani O'chirish</h2>
+                </div>
+                
+                <!-- Body -->
+                <div class="delete-body">
+                    <div class="warning-message">
+                        <i class="fas fa-trash-alt"></i>
+                        <h4>Diqqat! Bu amal qaytarilmaydi</h4>
+                        <p>Bildirishnomani o'chirishdan oldin ma'lumotlarni tekshiring</p>
+                    </div>
+                    
+                    <!-- Notification Details -->
+                    <div class="notification-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Kompaniya:</span>
+                            <span class="detail-value">{{ notification.service.company.name }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Xizmat:</span>
+                            <span class="detail-value">{{ notification.service.name }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Xabar turi:</span>
+                            <span class="detail-value">
+                                <span class="notification-type {{ notification.type }}">
+                                    <span class="status-dot"></span>
+                                    {{ notification.get_type_display }}
+                                </span>
+                            </span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Holat:</span>
+                            <span class="detail-value">
+                                <span class="notification-status {% if notification.is_sent %}sent{% else %}pending{% endif %}">
+                                    <span class="status-dot"></span>
+                                    {% if notification.is_sent %}Yuborilgan{% else %}Kutilmoqda{% endif %}
+                                </span>
+                            </span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Yaratilgan:</span>
+                            <span class="detail-value">{{ notification.date|date:"d.m.Y H:i" }}</span>
+                        </div>
+                        {% if notification.sent_date %}
+                        <div class="detail-row">
+                            <span class="detail-label">Yuborilgan:</span>
+                            <span class="detail-value">{{ notification.sent_date|date:"d.m.Y H:i" }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Message Preview -->
+                    <div class="detail-row">
+                        <span class="detail-label">Xabar matni:</span>
+                    </div>
+                    <div class="message-preview">
+                        {{ notification.message }}
+                    </div>
+                    
+                    <!-- Impact Warning -->
+                    {% if notification.is_sent %}
+                    <div class="sent-warning">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Bu bildirishnoma allaqachon yuborilgan, ammo yozuvni o'chirishingiz mumkin.</p>
+                    </div>
+                    {% else %}
+                    <div class="impact-warning">
+                        <h5>
+                            <i class="fas fa-exclamation-circle"></i>
+                            O'chirish ta'siri:
+                        </h5>
+                        <ul>
+                            <li>Bildirishnoma butunlay o'chiriladi</li>
+                            <li>Bu xabar hech qachon yuborilmaydi</li>
+                            <li>Bu amal qaytarilmaydi</li>
+                            <li>Statistikadan ham o'chiriladi</li>
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Actions -->
+                <div class="delete-actions">
+                    <a href="{% url 'main:notification_list' %}" class="btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        Orqaga qaytish
+                    </a>
+                    <form method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-danger" onclick="return confirmDelete()">
+                            <i class="fas fa-trash-alt"></i>
+                            Ha, o'chirish
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function confirmDelete() {
+        const isConfirmed = confirm(
+            'Rostdan ham bu bildirishnomani o\'chirmoqchimisiz?\n\n' +
+            'Bu amal qaytarilmaydi va barcha ma\'lumotlar yo\'qoladi.'
+        );
+        
+        if (isConfirmed) {
+            // Show loading state
+            const deleteBtn = event.target;
+            deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> O\'chirilmoqda...';
+            deleteBtn.disabled = true;
+            
+            // Additional confirmation for sent notifications
+            {% if notification.is_sent %}
+            return confirm(
+                'Bu bildirishnoma allaqachon yuborilgan!\n\n' +
+                'Faqat yozuv o\'chiriladi, yuborilgan xabar esa qoladi.\n\n' +
+                'Davom etishni xohlaysizmi?'
+            );
+            {% endif %}
+        }
+        
+        return isConfirmed;
+    }
+    
+    // Prevent accidental page close
+    window.addEventListener('beforeunload', function(e) {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+    });
+    
+    // Remove warning after form submission
+    document.querySelector('form').addEventListener('submit', function() {
+        window.removeEventListener('beforeunload', arguments.callee);
+    });
+    
+    // Keyboard shortcut handling
+    document.addEventListener('keydown', function(e) {
+        // Escape key - go back
+        if (e.key === 'Escape') {
+            window.location.href = '{% url "sms:notification_list" %}';
+        }
+        
+        // Enter key - confirm delete
+        if (e.key === 'Enter' && e.ctrlKey) {
+            e.preventDefault();
+            if (confirmDelete()) {
+                document.querySelector('form').submit();
+            }
+        }
+    });
+    
+    // Auto-focus on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Focus on the container for keyboard navigation
+        document.querySelector('.delete-container').focus();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,823 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .notifications-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .notifications-header {
+        background: linear-gradient(45deg, #714b67, #8e44ad);
+        color: white;
+        padding: 25px 30px;
+        border-bottom: 3px solid #5a3a54;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .notifications-header h2 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+    }
+    
+    .btn-create {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-create:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+    }
+    
+    .filters-section {
+        padding: 25px 30px;
+        background: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+    }
+    
+    .filters-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr auto auto;
+        gap: 15px;
+        align-items: end;
+    }
+    
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .filter-group label {
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #495057;
+        font-size: 14px;
+    }
+    
+    .form-control {
+        padding: 10px 15px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #714b67;
+        box-shadow: 0 0 0 3px rgba(113, 75, 103, 0.1);
+        outline: none;
+    }
+    
+    .btn-filter {
+        background: #714b67;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-filter:hover {
+        background: #5a3a54;
+        transform: translateY(-1px);
+    }
+    
+    .btn-clear {
+        background: #6c757d;
+        border: none;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-clear:hover {
+        background: #5a6268;
+    }
+    
+    .bulk-actions {
+        padding: 20px 30px;
+        background: #fff3cd;
+        border-bottom: 2px solid #ffeaa7;
+        display: none;
+    }
+    
+    .bulk-actions.active {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .bulk-info {
+        color: #856404;
+        font-weight: 500;
+    }
+    
+    .bulk-buttons {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn-bulk-send {
+        background: #28a745;
+        border: none;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-bulk-send:hover {
+        background: #218838;
+    }
+    
+    .btn-bulk-delete {
+        background: #dc3545;
+        border: none;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-bulk-delete:hover {
+        background: #c82333;
+    }
+    
+    .notifications-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .notifications-table th {
+        background: #f8f9fa;
+        padding: 15px 20px;
+        text-align: left;
+        font-weight: 600;
+        color: #495057;
+        border-bottom: 2px solid #e9ecef;
+        font-size: 14px;
+    }
+    
+    .notifications-table td {
+        padding: 18px 20px;
+        border-bottom: 1px solid #f1f3f4;
+        vertical-align: middle;
+    }
+    
+    .notifications-table tbody tr:hover {
+        background: #f8f9fa;
+    }
+    
+    .notification-type {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+    
+    .notification-type.first {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .notification-type.last-month {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .notification-type.last {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .notification-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    
+    .notification-status.sent {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .notification-status.pending {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+    
+    .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+    
+    .company-info {
+        font-weight: 500;
+        color: #2c3e50;
+    }
+    
+    .service-name {
+        color: #6c757d;
+        font-size: 14px;
+        margin-top: 2px;
+    }
+    
+    .message-preview {
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: #495057;
+    }
+    
+    .date-info {
+        color: #6c757d;
+        font-size: 14px;
+    }
+    
+    .sent-date {
+        color: #28a745;
+        font-weight: 500;
+        font-size: 13px;
+        margin-top: 2px;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .btn-action {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .btn-send {
+        background: #28a745;
+        color: white;
+    }
+    
+    .btn-send:hover {
+        background: #218838;
+        transform: translateY(-1px);
+    }
+    
+    .btn-edit {
+        background: #17a2b8;
+        color: white;
+    }
+    
+    .btn-edit:hover {
+        background: #138496;
+        transform: translateY(-1px);
+    }
+    
+    .btn-delete {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .btn-delete:hover {
+        background: #c82333;
+        transform: translateY(-1px);
+    }
+    
+    .btn-view {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .btn-view:hover {
+        background: #5a6268;
+        transform: translateY(-1px);
+    }
+    
+    .pagination-wrapper {
+        padding: 25px 30px;
+        background: #f8f9fa;
+        border-top: 2px solid #e9ecef;
+        display: flex;
+        justify-content: between;
+        align-items: center;
+    }
+    
+    .pagination-info {
+        color: #6c757d;
+        font-size: 14px;
+    }
+    
+    .pagination {
+        display: flex;
+        gap: 5px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+    
+    .pagination .page-item .page-link {
+        padding: 8px 12px;
+        border: 1px solid #dee2e6;
+        color: #714b67;
+        text-decoration: none;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+    
+    .pagination .page-item.active .page-link {
+        background: #714b67;
+        border-color: #714b67;
+        color: white;
+    }
+    
+    .pagination .page-item .page-link:hover {
+        background: #f8f9fa;
+        border-color: #714b67;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 30px;
+        color: #6c757d;
+    }
+    
+    .empty-state i {
+        font-size: 48px;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+    
+    .empty-state h4 {
+        margin-bottom: 10px;
+        color: #495057;
+    }
+    
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        padding: 25px 30px;
+        background: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 15px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stat-item h4 {
+        margin: 0 0 5px 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+    
+    .stat-item p {
+        margin: 0;
+        color: #6c757d;
+        font-size: 14px;
+    }
+    
+    .stat-item.total {
+        border-left: 4px solid #714b67;
+    }
+    
+    .stat-item.sent {
+        border-left: 4px solid #28a745;
+    }
+    
+    .stat-item.pending {
+        border-left: 4px solid #ffc107;
+    }
+    
+    .stat-item.success-rate {
+        border-left: 4px solid #17a2b8;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="notifications-container">
+                <!-- Header -->
+                <div class="notifications-header">
+                    <div>
+                        <h2><i class="fas fa-bell"></i> SMS Bildirishnomalar</h2>
+                        <p style="margin: 5px 0 0 0; opacity: 0.9;">Yuborilgan va kutilayotgan SMS xabarlarini boshqaring</p>
+                    </div>
+                    <a href="{% url 'sms:notification_create' %}" class="btn-create">
+                        <i class="fas fa-plus"></i>
+                        Yangi bildirishnoma
+                    </a>
+                </div>
+                
+                <!-- Stats -->
+                <div class="stats-row">
+                    <div class="stat-item total">
+                        <h4>{{ page_obj.paginator.count }}</h4>
+                        <p>Umumiy</p>
+                    </div>
+                    <div class="stat-item sent">
+                        <h4>{{ sent_count|default:0 }}</h4>
+                        <p>Yuborilgan</p>
+                    </div>
+                    <div class="stat-item pending">
+                        <h4>{{ pending_count|default:0 }}</h4>
+                        <p>Kutilmoqda</p>
+                    </div>
+                    <div class="stat-item success-rate">
+                        <h4>{{ success_rate|default:0 }}%</h4>
+                        <p>Muvaffaqiyat</p>
+                    </div>
+                </div>
+                
+                <!-- Filters -->
+                <div class="filters-section">
+                    <form method="get" class="filters-form">
+                        <div class="filters-row">
+                            <div class="filter-group">
+                                <label>Qidiruv</label>
+                                <input type="text" name="search" class="form-control" 
+                                       placeholder="Xabar, kompaniya yoki xizmat nomi..." 
+                                       value="{{ search }}">
+                            </div>
+                            <div class="filter-group">
+                                <label>Xabar turi</label>
+                                <select name="type" class="form-control">
+                                    <option value="">Barchasi</option>
+                                    {% for key, value in type_choices %}
+                                        <option value="{{ key }}" {% if notification_type == key %}selected{% endif %}>
+                                            {{ value }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label>Holat</label>
+                                <select name="is_sent" class="form-control">
+                                    <option value="">Barchasi</option>
+                                    <option value="true" {% if is_sent == 'true' %}selected{% endif %}>Yuborilgan</option>
+                                    <option value="false" {% if is_sent == 'false' %}selected{% endif %}>Kutilmoqda</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn-filter">
+                                <i class="fas fa-filter"></i>
+                                Filtrlash
+                            </button>
+                            <a href="{% url 'sms:notification_list' %}" class="btn-clear">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Bulk Actions -->
+                <div class="bulk-actions" id="bulkActions">
+                    <div class="bulk-info">
+                        <span id="selectedCount">0</span> ta bildirishnoma tanlandi
+                    </div>
+                    <div class="bulk-buttons">
+                        <button type="button" class="btn-bulk-send" onclick="bulkSendNotifications()">
+                            <i class="fas fa-paper-plane"></i>
+                            Yuborish
+                        </button>
+                        <button type="button" class="btn-bulk-delete" onclick="bulkDeleteNotifications()">
+                            <i class="fas fa-trash"></i>
+                            O'chirish
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Table -->
+                {% if page_obj.object_list %}
+                <form id="bulkForm" method="post" action="{% url 'sms:bulk_send_notifications' %}">
+                    {% csrf_token %}
+                    <table class="notifications-table">
+                        <thead>
+                            <tr>
+                                <th width="40">
+                                    <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                                </th>
+                                <th>Kompaniya / Xizmat</th>
+                                <th>Xabar</th>
+                                <th>Turi</th>
+                                <th>Holat</th>
+                                <th>Sana</th>
+                                <th width="150">Amallar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for notification in page_obj.object_list %}
+                            <tr>
+                                <td>
+                                    <input type="checkbox" name="notification_ids" value="{{ notification.id }}" 
+                                           class="notification-checkbox" onchange="updateBulkActions()">
+                                </td>
+                                <td>
+                                    <div class="company-info">{{ notification.service.company.name }}</div>
+                                    <div class="service-name">{{ notification.service.name }}</div>
+                                </td>
+                                <td>
+                                    <div class="message-preview" title="{{ notification.message }}">
+                                        {{ notification.message|truncatechars:60 }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="notification-type {{ notification.type }}">
+                                        <span class="status-dot"></span>
+                                        {{ notification.get_type_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="notification-status {% if notification.is_sent %}sent{% else %}pending{% endif %}">
+                                        <span class="status-dot"></span>
+                                        {% if notification.is_sent %}Yuborilgan{% else %}Kutilmoqda{% endif %}
+                                    </span>
+                                    {% if notification.sent_date %}
+                                        <div class="sent-date">{{ notification.sent_date|date:"d.m.Y H:i" }}</div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="date-info">{{ notification.date|date:"d.m.Y H:i" }}</div>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        {% if not notification.is_sent %}
+                                            <button type="button" class="btn-action btn-send" 
+                                                    onclick="sendNotification({{ notification.id }})"
+                                                    title="Yuborish">
+                                                <i class="fas fa-paper-plane"></i>
+                                            </button>
+                                            <a href="{% url 'main:notification_edit' notification.id %}" 
+                                               class="btn-action btn-edit" title="Tahrirlash">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        {% else %}
+                                            <button type="button" class="btn-action btn-view" 
+                                                    onclick="viewNotification({{ notification.id }})"
+                                                    title="Ko'rish">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        {% endif %}
+                                        <a href="{% url 'main:notification_delete' notification.id %}" 
+                                           class="btn-action btn-delete" title="O'chirish"
+                                           onclick="return confirm('Bildirishnomani o\'chirishni xohlaysizmi?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </form>
+                
+                <!-- Pagination -->
+                {% if page_obj.paginator.num_pages > 1 %}
+                <div class="pagination-wrapper">
+                    <div class="pagination-info">
+                        {{ page_obj.start_index }} - {{ page_obj.end_index }} / {{ page_obj.paginator.count }} ta natija
+                    </div>
+                    <nav>
+                        <ul class="pagination">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1{% if search %}&search={{ search }}{% endif %}{% if notification_type %}&type={{ notification_type }}{% endif %}{% if is_sent %}&is_sent={{ is_sent }}{% endif %}">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if notification_type %}&type={{ notification_type }}{% endif %}{% if is_sent %}&is_sent={{ is_sent }}{% endif %}">
+                                        <i class="fas fa-angle-left"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if notification_type %}&type={{ notification_type }}{% endif %}{% if is_sent %}&is_sent={{ is_sent }}{% endif %}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if notification_type %}&type={{ notification_type }}{% endif %}{% if is_sent %}&is_sent={{ is_sent }}{% endif %}">
+                                        <i class="fas fa-angle-right"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if notification_type %}&type={{ notification_type }}{% endif %}{% if is_sent %}&is_sent={{ is_sent }}{% endif %}">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
+                
+                {% else %}
+                <!-- Empty State -->
+                <div class="empty-state">
+                    <i class="fas fa-bell-slash"></i>
+                    <h4>Hech qanday bildirishnoma topilmadi</h4>
+                    <p>{% if search or notification_type or is_sent %}Filtrlash shartlariga mos natija yo'q{% else %}Hali biron bir bildirishnoma yaratilmagan{% endif %}</p>
+                    {% if not search and not notification_type and not is_sent %}
+                        <a href="{% url 'main:notification_create' %}" class="btn-primary mt-3">
+                            <i class="fas fa-plus"></i>
+                            Birinchi bildirishnomani yarating
+                        </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Select all functionality
+    function toggleSelectAll() {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.notification-checkbox');
+        
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAll.checked;
+        });
+        
+        updateBulkActions();
+    }
+    
+    // Update bulk actions visibility
+    function updateBulkActions() {
+        const checkboxes = document.querySelectorAll('.notification-checkbox:checked');
+        const bulkActions = document.getElementById('bulkActions');
+        const selectedCount = document.getElementById('selectedCount');
+        
+        if (checkboxes.length > 0) {
+            bulkActions.classList.add('active');
+            selectedCount.textContent = checkboxes.length;
+        } else {
+            bulkActions.classList.remove('active');
+        }
+        
+        // Update select all checkbox
+        const allCheckboxes = document.querySelectorAll('.notification-checkbox');
+        const selectAll = document.getElementById('selectAll');
+        selectAll.checked = checkboxes.length === allCheckboxes.length && allCheckboxes.length > 0;
+        selectAll.indeterminate = checkboxes.length > 0 && checkboxes.length < allCheckboxes.length;
+    }
+    
+    // Send single notification
+    function sendNotification(notificationId) {
+        if (confirm('Bu bildirishnomani yuborishni xohlaysizmi?')) {
+            fetch(`/notifications/${notificationId}/send/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Xatolik: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('Yuborishda xatolik yuz berdi');
+                console.error('Error:', error);
+            });
+        }
+    }
+    
+    // Bulk send notifications
+    function bulkSendNotifications() {
+        const checkboxes = document.querySelectorAll('.notification-checkbox:checked');
+        if (checkboxes.length === 0) {
+            alert('Hech qanday bildirishnoma tanlanmagan!');
+            return;
+        }
+        
+        if (confirm(`${checkboxes.length} ta bildirishnomani yuborishni xohlaysizmi?`)) {
+            document.getElementById('bulkForm').submit();
+        }
+    }
+    
+    // Bulk delete notifications
+    function bulkDeleteNotifications() {
+        const checkboxes = document.querySelectorAll('.notification-checkbox:checked');
+        if (checkboxes.length === 0) {
+            alert('Hech qanday bildirishnoma tanlanmagan!');
+            return;
+        }
+        
+        if (confirm(`${checkboxes.length} ta bildirishnomani o'chirishni xohlaysizmi?`)) {
+            const form = document.getElementById('bulkForm');
+            form.action = '{% url "main:bulk_delete_notifications" %}';
+            form.submit();
+        }
+    }
+    
+    // View notification details
+    function viewNotification(notificationId) {
+        // Implementation for viewing notification details
+        // Could open a modal or navigate to detail page
+        window.open(`/notifications/${notificationId}/`, '_blank');
+    }
+    
+    // Auto-refresh every 30 seconds
+    let autoRefreshInterval = setInterval(() => {
+        location.reload();
+    }, 30000);
+    
+    // Pause auto-refresh when user is interacting
+    document.addEventListener('click', () => {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = setInterval(() => {
+            location.reload();
+        }, 30000);
+    });
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 'a') {
+            e.preventDefault();
+            document.getElementById('selectAll').click();
+        }
+        
+        if (e.key === 'Delete') {
+            const checkedBoxes = document.querySelectorAll('.notification-checkbox:checked');
+            if (checkedBoxes.length > 0) {
+                bulkDeleteNotifications();
+            }
+        }
+    });
+</script>
+{% endblock %}

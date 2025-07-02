@@ -1,0 +1,162 @@
+<!-- templates/main/employees/employee_list.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/main/employee.css' %}">
+{% endblock %}
+
+{% block breadcrumb %}
+<span class="breadcrumb-item">Dashboard</span>
+<span class="breadcrumb-separator">/</span>
+<span class="breadcrumb-item active">Xodimlar</span>
+{% endblock %}
+
+{% block content %}
+<div class="employees-page">
+    
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">
+                <i data-lucide="users"></i>
+                Xodimlar
+            </h1>
+            <p class="page-subtitle">Tizim foydalanuvchilarini boshqarish</p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'main:employee_add' %}" class="btn btn-primary">
+                <i data-lucide="user-plus"></i>
+                Yangi xodim
+            </a>
+        </div>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i data-lucide="users"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">{{ total_employees }}</div>
+                <div class="stat-label">Jami xodimlar</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon success">
+                <i data-lucide="user-check"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">{{ active_employees }}</div>
+                <div class="stat-label">Faol xodimlar</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon warning">
+                <i data-lucide="user-x"></i>
+            </div>
+            <div class="stat-content">
+    <div class="stat-number">{{ inactive_employees }}
+</div>
+    <div class="stat-label">Nofaol xodimlar</div>
+</div>
+
+        </div>
+    </div>
+    
+    <!-- Employees Table -->
+    <div class="employees-table-container">
+        <div class="table-header">
+            <h2>Barcha xodimlar</h2>
+            <div class="table-filters">
+                <select class="form-control" id="positionFilter">
+                    <option value="">Barcha lavozimlar</option>
+                    <option value="admin">Admin</option>
+                    <option value="accounted">Hisobchi</option>
+                    <option value="employee">Xodim</option>
+                </select>
+                <select class="form-control" id="statusFilter">
+                    <option value="">Barcha holatlar</option>
+                    <option value="active">Faol</option>
+                    <option value="inactive">Nofaol</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="table-wrapper">
+            <table class="employees-table">
+                <thead>
+                    <tr>
+                        <th>Ism Familiya</th>
+                        <th>Lavozim</th>
+                        <th>Telefon</th>
+                        <th>Ishga kirgan</th>
+                        <th>Holat</th>
+                        <th>Amallar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for employee in employees %}
+                    <tr class="employee-row" data-position="{{ employee.position }}" data-status="{% if employee.is_active %}active{% else %}inactive{% endif %}">
+                        <td>
+                            <div class="employee-info">
+
+                                <div class="employee-details">
+                                    <a href="{% url 'main:employee_detail' employee.id %}" class="employee-name">
+                                        {{ employee.first_name }} {{ employee.last_name }}
+                                    </a>
+                                    <div class="employee-email">{{ employee.user.username }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="position-badge {{ employee.position }}">
+                                {{ employee.get_position_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="phone-number">{{ employee.phone_number|default:'—' }}</span>
+                        </td>
+                        <td>
+                            <span class="hire-date">{{ employee.hire_date|date:'d.m.Y' }}</span>
+                        </td>
+                        <td>
+                            <span class="status-badge {% if employee.is_active %}active{% else %}inactive{% endif %}">
+                                <i data-lucide="{% if employee.is_active %}check-circle{% else %}x-circle{% endif %}"></i>
+                                {% if employee.is_active %}Faol{% else %}Nofaol{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{% url 'main:employee_detail' employee.id %}" class="btn btn-sm btn-outline" title="Ko'rish">
+<img src="/static/icon/view.png" alt="Edit" width="16" height="16">
+                                </a>
+                                <a href="{% url 'main:employee_edit' employee.id %}" class="btn btn-sm btn-outline" title="Tahrirlash">
+<img src="/static/icon/edit.png" alt="Edit" width="16" height="16">
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <div class="empty-content">
+                                <i data-lucide="users"></i>
+                                <h3>Xodimlar topilmadi</h3>
+                                <p>Hozircha tizimda xodimlar mavjud emas</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/main/employee.js' %}"></script>
+{% endblock %}

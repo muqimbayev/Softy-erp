@@ -1,0 +1,240 @@
+<!-- templates/main/services/expense_add.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/main/expense-form.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="expense-form-page">
+    <!-- Form Header -->
+    <div class="form-header-card">
+        <div class="page-title">
+            <i data-lucide="minus-circle"></i>
+            Xarajat qo'shish
+            <p style="font-size: 14px; font-weight: 400; opacity: 0.9; margin: 0;">
+                {{ service.name }} xizmati uchun yangi xarajat qo'shing
+            </p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'main:service_detail' service.id %}" class="btn btn-light">
+                <i data-lucide="arrow-left"></i>
+                Orqaga
+            </a>
+        </div>
+    </div>
+
+    <!-- Service Info -->
+    <div class="service-info-card">
+        <div class="service-summary">
+            <div class="summary-item">
+                <span class="summary-label">Xizmat nomi</span>
+                <span class="summary-value">{{ service.name }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Kompaniya</span>
+                <span class="summary-value">{{ service.company.name }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Turi</span>
+                <span class="summary-value">{{ service.get_type_display }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Holati</span>
+                <span class="summary-value status-{{ service.tender_status }}">
+                    {{ service.get_tender_status_display }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Container -->
+    <div class="form-container">
+        <form class="expense-form" method="post" id="expenseAddForm">
+            {% csrf_token %}
+            
+            <!-- Form Sections -->
+            <div class="form-sections">
+                
+                <!-- Xarajat ma'lumotlari -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h3>
+                            <i data-lucide="credit-card"></i>
+                            Xarajat ma'lumotlari
+                        </h3>
+                        <p class="section-description">Xarajat miqdori va tafsilotlari</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="{{ form.amount.id_for_label }}">
+                                    {{ form.amount.label }} <span class="text-danger">*</span>
+                                </label>
+                                <div class="amount-input-container">
+                                    {{ form.amount }}
+                                    <span class="currency-label">so'm</span>
+                                </div>
+                                {% if form.amount.errors %}
+                                    <div class="field-error">{{ form.amount.errors.0 }}</div>
+                                {% endif %}
+                                <small class="field-help">Xarajat miqdorini kiriting</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form.category.id_for_label }}">
+                                    {{ form.category.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.category }}
+                                {% if form.category.errors %}
+                                    <div class="field-error">{{ form.category.errors.0 }}</div>
+                                {% endif %}
+                                <small class="field-help" id="categoryTaxInfo">Xarajat kategoriyasini tanlang</small>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="{{ form.date.id_for_label }}">
+                                    {{ form.date.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.date }}
+                                {% if form.date.errors %}
+                                    <div class="field-error">{{ form.date.errors.0 }}</div>
+                                {% endif %}
+                                <small class="field-help">Xarajat sanasini kiriting</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form.payment_method.id_for_label }}">
+                                    {{ form.payment_method.label }}
+                                </label>
+                                {{ form.payment_method }}
+                                {% if form.payment_method.errors %}
+                                    <div class="field-error">{{ form.payment_method.errors.0 }}</div>
+                                {% endif %}
+                                <small class="field-help">Ixtiyoriy. To'lov usuli</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Qo'shimcha ma'lumotlar -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h3>
+                            <i data-lucide="message-square"></i>
+                            Qo'shimcha ma'lumotlar
+                        </h3>
+                        <p class="section-description">Xarajat haqida batafsil ma'lumot</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="form-group">
+                            <label for="{{ form.notes.id_for_label }}">
+                                {{ form.notes.label }}
+                            </label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                                <div class="field-error">{{ form.notes.errors.0 }}</div>
+                            {% endif %}
+                            <small class="field-help">Xarajat haqida batafsil izoh</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hisob-kitob -->
+                <div class="form-section" id="calculationSection">
+                    <div class="section-header">
+                        <h3>
+                            <i data-lucide="calculator"></i>
+                            Hisob-kitob
+                        </h3>
+                        <p class="section-description">Xarajat va soliq ma'lumotlari</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="calculation-grid">
+                            <div class="calc-item">
+                                <span class="calc-label">Asosiy miqdor:</span>
+                                <span class="calc-value" id="baseAmount">0 so'm</span>
+                            </div>
+                            <div class="calc-item">
+                                <span class="calc-label">Soliq (<span id="taxRate">0</span>%):</span>
+                                <span class="calc-value" id="taxAmount">0 so'm</span>
+                            </div>
+                            <div class="calc-item highlight">
+                                <span class="calc-label">Jami xarajat:</span>
+                                <span class="calc-value" id="totalAmount">0 so'm</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <a href="{% url 'main:service_detail' service.id %}" class="btn btn-secondary">
+                    <i data-lucide="arrow-left"></i>
+                    Bekor qilish
+                </a>
+                <button type="submit" class="btn btn-primary" id="saveExpenseBtn">
+                    <i data-lucide="save"></i>
+                    <span>Xarajatni saqlash</span>
+                    <div class="btn-loader" style="display: none;">
+                        <div class="spinner"></div>
+                    </div>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Debug info -->
+<div style="display: none;" id="debugInfo">
+    <h4>Debug Information:</h4>
+    <p><strong>Categories JSON:</strong> {{ categories_json|safe }}</p>
+    <p><strong>Categories Count:</strong> {{ categories.count }}</p>
+    {% for category in categories %}
+        <p>{{ category.name }}: {{ category.tax_rate }}%</p>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Categories JSON ni script tagida yuklash -->
+<script type="text/javascript">
+    // Debug: Template variables
+    console.log('Template loaded with categories:');
+    console.log('Categories JSON raw:', '{{ categories_json|safe }}');
+    
+    // Pass category tax rates to JavaScript
+    try {
+        window.categoryTaxRates = {{ categories_json|safe }};
+        console.log('Categories successfully loaded to window:', window.categoryTaxRates);
+        
+        // Validate data
+        if (typeof window.categoryTaxRates === 'object') {
+            const categoryCount = Object.keys(window.categoryTaxRates).length;
+            console.log(`Total categories loaded: ${categoryCount}`);
+            
+            // Log each category
+            Object.entries(window.categoryTaxRates).forEach(([id, rate]) => {
+                console.log(`Category ID ${id}: ${rate}% tax`);
+            });
+        } else {
+            console.error('categoryTaxRates is not an object:', typeof window.categoryTaxRates);
+        }
+        
+    } catch (error) {
+        console.error('Error parsing categories JSON:', error);
+        console.error('JSON value was:', '{{ categories_json|safe }}');
+        window.categoryTaxRates = {};
+    }
+</script>
+
+<!-- Main expense form script -->
+<script src="{% static 'js/main/expense-form.js' %}"></script>
+{% endblock %}

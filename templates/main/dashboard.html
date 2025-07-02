@@ -1,0 +1,514 @@
+<!-- templates/main/dashboard.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load dashboard_filters %}
+
+{% block title %}
+{% if dashboard_type == 'admin' %}Rahbar Dashboard
+{% elif dashboard_type == 'accountant' %}Bugalter Dashboard  
+{% elif dashboard_type == 'employee' %}Xodim Dashboard
+{% else %}Dashboard{% endif %} - Softy ERP
+{% endblock %}
+
+{% block breadcrumb %}
+<span class="breadcrumb-item">Dashboard</span>
+{% if dashboard_type %}
+<i data-lucide="chevron-right"></i>
+<span class="breadcrumb-item">
+    {% if dashboard_type == 'admin' %}Rahbar paneli
+    {% elif dashboard_type == 'accountant' %}Bugalter paneli
+    {% elif dashboard_type == 'employee' %}Xodim paneli
+    {% endif %}
+</span>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    
+    <!-- Welcome Message -->
+    <div class="welcome-section">
+        <h1 class="welcome-title">
+            Assalomu alaykum, {{ user.get_full_name|default:user.username }}! 
+        </h1>
+        <p class="welcome-subtitle">
+            {% if dashboard_type == 'admin' %}
+                Rahbar paneli - Tizimni to'liq boshqaring
+            {% elif dashboard_type == 'accountant' %}
+                Bugalter paneli - Moliyaviy hisobotlar va to'lovlar
+            {% elif dashboard_type == 'employee' %}
+                Xodim paneli - Sizning vazifalaringiz va loyihalar
+            {% else %}
+                Softy ERP tizimiga xush kelibsiz
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="stats-grid">
+        {% if dashboard_type == 'admin' %}
+        <div class="stat-card success">
+            <div class="stat-icon">
+                <i data-lucide="dollar-sign"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value" id="totalIncome">{{ stats.total_income|default:"0" }} so'm</div>
+                <div class="stat-label">Umumiy daromad</div>
+                <div class="stat-change positive">
+                    <i data-lucide="trending-up"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card primary">
+            <div class="stat-icon">
+                <i data-lucide="briefcase"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ stats.active_services|default:"0" }}</div>
+                <div class="stat-label">Faol xizmatlar</div>
+                <div class="stat-change positive">
+                    <i data-lucide="trending-up"></i>
+                    Loyihalar
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card warning">
+            <div class="stat-icon">
+                <i data-lucide="clock"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ stats.expiring_soon|default:"0" }}</div>
+                <div class="stat-label">Tugash yaqin</div>
+                <div class="stat-change negative">
+                    <i data-lucide="alert-triangle"></i>
+                    30 kundan kam qolgan
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card info">
+            <div class="stat-icon">
+                <i data-lucide="building"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ stats.total_companies|default:"0" }}</div>
+                <div class="stat-label">Kompaniyalar</div>
+                <div class="stat-change neutral">
+                    <i data-lucide="users"></i>
+                    Mijozlar
+                </div>
+            </div>
+        </div>
+        
+        {% elif dashboard_type == 'accountant' %}
+        <div class="stat-card success">
+            <div class="stat-icon">
+                <i data-lucide="trending-up"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value" id="totalIncome">{{ stats.monthly_income|default:"0"|floatformat:2 }} so'm</div>
+                <div class="stat-label">Oylik daromad</div>
+                <div class="stat-change positive">
+                    <i data-lucide="dollar-sign"></i>
+                    Bu oy
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card danger">
+            <div class="stat-icon">
+                <i data-lucide="trending-down"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value" id="totalIncome">{{ stats.monthly_expenses|default:"0"|floatformat:2 }} so'm</div>
+                <div class="stat-label">Oylik xarajat</div>
+                <div class="stat-change negative">
+                    <i data-lucide="minus"></i>
+                    Bu oy
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card primary">
+            <div class="stat-icon">
+                <i data-lucide="wallet"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value" id="totalIncome">{{ stats.monthly_profit|default:"0"|floatformat:2 }} so'm</div>
+                <div class="stat-label">Oylik foyda</div>
+                <div class="stat-change {% if stats.monthly_profit >= 0 %}positive{% else %}negative{% endif %}">
+                    <i data-lucide="{% if stats.monthly_profit >= 0 %}plus{% else %}minus{% endif %}"></i>
+                    Daromad - Xarajat
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card warning">
+            <div class="stat-icon">
+                <i data-lucide="clock"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value" id="totalIncome">{{ stats.pending_payments|default:"0"|floatformat:2 }} so'm</div>
+                <div class="stat-label">Kutilayotgan to'lovlar</div>
+                <div class="stat-change neutral">
+                    <i data-lucide="calendar"></i>
+                    Pending
+                </div>
+            </div>
+        </div>
+        
+        {% elif dashboard_type == 'employee' %}
+        <div class="stat-card primary">
+            <div class="stat-icon">
+                <i data-lucide="briefcase"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ stats.my_services|default:"0" }}</div>
+                <div class="stat-label">Mening xizmatlarim</div>
+                <div class="stat-change neutral">
+                    <i data-lucide="user"></i>
+                    Jami
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card success">
+            <div class="stat-icon">
+                <i data-lucide="check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ stats.completed_services|default:"0" }}</div>
+                <div class="stat-label">Tugallangan</div>
+                <div class="stat-change positive">
+                    <i data-lucide="check"></i>
+                    Yutganlar
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card warning">
+            <div class="stat-icon">
+                <i data-lucide="clock"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ stats.pending_services|default:"0" }}</div>
+                <div class="stat-label">Jarayonda</div>
+                <div class="stat-change neutral">
+                    <i data-lucide="play"></i>
+                    Faol
+                </div>
+            </div>
+        </div>
+
+
+        {% endif %}
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="section-card">
+        <div class="section-header">
+            <h3 class="section-title">
+                <i data-lucide="zap"></i>
+                Tezkor amallar
+            </h3>
+            <span class="badge">
+                {% if dashboard_type == 'admin' %}Rahbar
+                {% elif dashboard_type == 'accountant' %}Bugalter
+                {% elif dashboard_type == 'employee' %}Xodim
+                {% else %}Beta{% endif %}
+            </span>
+        </div>
+        <div class="section-content">
+            <div class="quick-actions">
+                {% if dashboard_type == 'admin' %}
+                <!-- Admin actions -->
+<a href="{% url 'main:employee_list' %}" class="quick-action-btn">
+    <div class="quick-action-icon">
+    </div>
+    <div class="quick-action-text">
+        <div class="quick-action-title">Xodimlar</div>
+        <div class="quick-action-subtitle">Boshqarish</div>
+    </div>
+</a>
+
+     <a href="{% url 'main:company_list' %}" class="quick-action-btn">
+    <div class="quick-action-icon">
+    </div>
+    <div class="quick-action-text">
+        <div class="quick-action-title">Kompaniya</div>
+        <div class="quick-action-subtitle">Boshqarish</div>
+    </div>
+</a>
+
+
+
+                <a href="{% url 'main:service_list' %}" class="quick-action-btn">
+    <div class="quick-action-icon">
+    </div>
+    <div class="quick-action-text">
+        <div class="quick-action-title">Xizmatlar</div>
+        <div class="quick-action-subtitle">Boshqarish</div>
+    </div>
+</a>
+
+
+                  <a href="{% url 'main:analytics' %}" class="quick-action-btn">
+    <div class="quick-action-icon">
+    </div>
+    <div class="quick-action-text">
+        <div class="quick-action-title">Hisobotlar</div>
+        <div class="quick-action-subtitle">Analitika</div>
+    </div>
+</a>
+
+
+        
+                
+                {% elif dashboard_type == 'accountant' %}
+                <!-- Accountant actions -->
+                <a href="{% url 'main:dashboard' %}" class="quick-action-btn">
+
+                    <div class="quick-action-icon">
+                        <i data-lucide="trending-up"></i>
+                    </div>
+                    <div class="quick-action-text">
+                        <div class="quick-action-title">Moliyaviy malumotlar</div>
+                        <div class="quick-action-subtitle">To'lovlar</div>
+                    </div>
+                </a>
+                <a href="{% url 'main:financial_report' %}" class="quick-action-btn">
+
+                    <div class="quick-action-icon">
+                        <i data-lucide="trending-down"></i>
+                    </div>
+                    <div class="quick-action-text">
+                        <div class="quick-action-title">Hisobot</div>
+                        <div class="quick-action-subtitle">Ma'lumotlar</div>
+                    </div>
+                </a>
+
+                  <a href="{% url 'main:service_list' %}" class="quick-action-btn">
+                    <div class="quick-action-icon">
+                        <i data-lucide="file-text"></i>
+                    </div>
+                    <div class="quick-action-text">
+                        <div class="quick-action-title">Xizmatlar</div>
+                        <div class="quick-action-subtitle">Ma'lumot</div>
+                    </div>
+                </a>
+
+   
+                
+                {% elif dashboard_type == 'employee' %}
+                <!-- Employee actions -->
+                  <a href="{% url 'main:service_list' %}" class="quick-action-btn">
+                    <div class="quick-action-icon">
+                        <i data-lucide="briefcase"></i>
+                    </div>
+                    <div class="quick-action-text">
+                        <div class="quick-action-title">Xizmatlar</div>
+                        <div class="quick-action-subtitle">Loyihalar</div>
+                    </div>
+                </a>
+
+                  <a href="{% url 'main:company_list' %}" class="quick-action-btn">
+                    <div class="quick-action-icon">
+                        <i data-lucide="check-square"></i>
+                    </div>
+                    <div class="quick-action-text">
+                        <div class="quick-action-title">Kompaniyalar</div>
+                        <div class="quick-action-subtitle">Boshqarish</div>
+                    </div>
+                </a>
+
+                  <a href="{% url 'main:expiring_list' %}" class="quick-action-btn">
+                    <div class="quick-action-icon">
+                        <i data-lucide="file-text"></i>
+                    </div>
+                    <div class="quick-action-text">
+                        <div class="quick-action-title">Tugashga yaqin xizmatlar</div>
+                        <div class="quick-action-subtitle">Natijalar</div>
+                    </div>
+                </a>
+
+              
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- System Info -->
+    <div class="section-card">
+        <div class="section-header">
+            <h3 class="section-title">
+                <i data-lucide="info"></i>
+                Tizim ma'lumotlari
+            </h3>
+        </div>
+        <div class="section-content">
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Foydalanuvchi:</div>
+                    <div class="info-value">{{ user.get_full_name|default:user.username }}</div>
+                </div>
+                {% if employee %}
+                <div class="info-item">
+                    <div class="info-label">Lavozim:</div>
+                    <div class="info-value">{{ employee.get_position_display }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Telefon:</div>
+                    <div class="info-value">{{ employee.phone_number }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Ishga qabul:</div>
+                    <div class="info-value">{{ employee.hire_date|date:"d.m.Y" }}</div>
+                </div>
+                {% endif %}
+                <div class="info-item">
+                    <div class="info-label">So'ngi kirish:</div>
+                    <div class="info-value">{{ user.last_login|date:"d.m.Y H:i"|default:"Birinchi marta" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Dashboard turi:</div>
+                    <div class="info-value">
+                        <span class="status-badge active">
+                            {% if dashboard_type == 'admin' %}Rahbar
+                            {% elif dashboard_type == 'accountant' %}Bugalter
+                            {% elif dashboard_type == 'employee' %}Xodim
+                            {% else %}Standart{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.welcome-section {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.welcome-title {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.welcome-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.badge {
+    background: var(--warning-color);
+    color: var(--gray-800);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: var(--gray-50);
+    border-radius: var(--radius-md);
+}
+
+.info-label {
+    font-weight: 500;
+    color: var(--gray-600);
+}
+
+.info-value {
+    font-weight: 600;
+    color: var(--gray-800);
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-badge.active {
+    background: rgba(40, 167, 69, 0.1);
+    color: var(--success-color);
+}
+
+@media (max-width: 768px) {
+    .welcome-title {
+        font-size: 1.5rem;
+    }
+    
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .info-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+}
+</style>
+
+<script>
+function showFeatureComingSoon(feature) {
+    if (window.showToast) {
+        showToast(`${feature} funksiyasi tez orada qo'shiladi`, 'info');
+    } else {
+        alert(`${feature} funksiyasi tez orada qo'shiladi`);
+    }
+}
+
+// Simple number animation
+document.addEventListener('DOMContentLoaded', function() {
+    const numberElements = document.querySelectorAll('[id$="Income"]');
+    numberElements.forEach(el => {
+        const finalValue = parseInt(el.textContent.replace(/[^\d]/g, ''));
+        if (finalValue > 0) {
+            let currentValue = 0;
+            const increment = finalValue / 50;
+            const timer = setInterval(() => {
+                currentValue += increment;
+                if (currentValue >= finalValue) {
+                    currentValue = finalValue;
+                    clearInterval(timer);
+                }
+                el.textContent = Math.floor(currentValue).toLocaleString('uz-UZ') + ' so\'m';
+            }, 50);
+        }
+    });
+    
+    console.log('📊 Dashboard loaded:', '{{ dashboard_type|default:"default" }}');
+});
+</script>
+
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/main/dashboard.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/main/dashboard.js' %}"></script>
+{% endblock %}

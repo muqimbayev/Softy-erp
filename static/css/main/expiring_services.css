@@ -1,0 +1,502 @@
+/* Dashboard uslubi - Odoo ERP dizayni */
+
+.dashboard-container {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    padding: 0;
+    margin: 0;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+    padding: 32px;
+    background: linear-gradient(135deg, #714B67 0%, #8B5A7C 100%);
+    border-radius: 16px;
+    color: white;
+    box-shadow: 0 8px 32px rgba(113, 75, 103, 0.3);
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header-title {
+    font-size: 32px;
+    font-weight: 300;
+    margin: 0 0 8px 0;
+    color: white;
+}
+
+.header-subtitle {
+    font-size: 16px;
+    margin: 0;
+    opacity: 0.9;
+    font-weight: 300;
+}
+
+/* Dashboard Cards */
+.dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto 40px auto;
+    padding: 0 30px;
+}
+
+.dashboard-card {
+    background: white;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.card-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+}
+
+.card-icon-purple {
+    background: linear-gradient(135deg, #8e44ad, #9b59b6);
+}
+
+.card-icon-green {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+
+.card-icon-orange {
+    background: linear-gradient(135deg, #e67e22, #f39c12);
+}
+
+.card-icon-blue {
+    background: linear-gradient(135deg, #3498db, #5dade2);
+}
+
+.card-content {
+    flex: 1;
+}
+
+.card-number {
+    font-size: 32px;
+    font-weight: 600;
+    color: #2c3e50;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.card-label {
+    font-size: 14px;
+    color: #7f8c8d;
+    margin-bottom: 8px;
+}
+
+.card-growth {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 12px;
+    display: inline-block;
+}
+
+.card-growth.positive {
+    background: #d5f4e6;
+    color: #27ae60;
+}
+
+.card-growth.negative {
+    background: #fadbd8;
+    color: #e74c3c;
+}
+
+.card-growth.neutral {
+    background: #f8f9fa;
+    color: #6c757d;
+}
+
+/* Services Section */
+.services-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 30px;
+}
+
+.section-header {
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 24px;
+    font-weight: 400;
+    color: #2c3e50;
+    margin: 0;
+}
+
+/* Services Table */
+.services-table {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    overflow: hidden;
+}
+
+.table-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 120px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 16px 20px;
+    font-weight: 500;
+    color: #495057;
+    font-size: 14px;
+}
+
+.table-body {
+    /* Grid container for rows */
+}
+
+.table-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 120px;
+    padding: 20px;
+    border-bottom: 1px solid #f1f2f6;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    align-items: center;
+}
+
+.table-row:hover {
+    background-color: #f8f9fa;
+}
+
+.table-row:last-child {
+    border-bottom: none;
+}
+
+.table-col {
+    display: flex;
+    align-items: center;
+}
+
+/* Company Column */
+.company-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.service-name {
+    font-weight: 500;
+    color: #2c3e50;
+    font-size: 15px;
+}
+
+.company-name {
+    color: #7f8c8d;
+    font-size: 13px;
+}
+
+.service-type {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.service-type:contains("SHARTNOMA") {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.service-type {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+/* Date Column */
+.date-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.end-date {
+    font-weight: 500;
+    color: #2c3e50;
+    font-size: 14px;
+}
+
+.start-date {
+    color: #7f8c8d;
+    font-size: 12px;
+}
+
+.remaining-days {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-top: 2px;
+    color: #3498db;
+    background: #e3f2fd;
+}
+
+.remaining-days.warning {
+    color: #f39c12;
+    background: #fef9e7;
+}
+
+.remaining-days.urgent {
+    color: #e74c3c;
+    background: #fadbd8;
+    animation: pulse-text 2s infinite;
+}
+
+@keyframes pulse-text {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: capitalize;
+    display: inline-block;
+    min-width: 80px;
+    text-align: center;
+}
+
+/* Tender Status */
+.tender-won {
+    background: #d5f4e6;
+    color: #27ae60;
+}
+
+.tender-lost {
+    background: #fadbd8;
+    color: #e74c3c;
+}
+
+.tender-canceled {
+    background: #f8f9fa;
+    color: #6c757d;
+}
+
+.tender-not_participating {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.tender-in_progress {
+    background: #d6eaf8;
+    color: #3498db;
+}
+
+/* Payment Status */
+.payment-active {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.payment-completed {
+    background: #d5f4e6;
+    color: #27ae60;
+}
+
+/* Action Buttons */
+.col-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.action-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.view-btn {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.view-btn:hover {
+    background: #bbdefb;
+}
+
+.edit-btn {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.edit-btn:hover {
+    background: #e1bee7;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+
+.empty-icon {
+    font-size: 64px;
+    color: #bdc3c7;
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    color: #2c3e50;
+    font-size: 24px;
+    font-weight: 400;
+    margin: 0 0 10px 0;
+}
+
+.empty-state p {
+    color: #7f8c8d;
+    font-size: 16px;
+    margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .dashboard-cards {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 0 20px;
+    }
+    
+    .services-section {
+        padding: 0 20px;
+    }
+    
+    .table-header,
+    .table-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .table-header {
+        display: none;
+    }
+    
+    .table-row {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 16px;
+    }
+    
+    .table-col {
+        justify-content: space-between;
+        padding: 4px 0;
+        border-bottom: 1px solid #f1f2f6;
+    }
+    
+    .table-col:last-child {
+        border-bottom: none;
+    }
+    
+    .table-col::before {
+        content: attr(data-label);
+        font-weight: 500;
+        color: #7f8c8d;
+        font-size: 12px;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 4px;
+    }
+    
+    .date-info {
+        flex-direction: row;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .remaining-days {
+        margin-top: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-header {
+        padding: 30px 20px;
+    }
+    
+    .header-title {
+        font-size: 28px;
+    }
+    
+    .dashboard-cards {
+        grid-template-columns: 1fr;
+        padding: 0 20px;
+    }
+    
+    .dashboard-card {
+        padding: 20px;
+    }
+    
+    .card-number {
+        font-size: 28px;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .dashboard-container {
+        background: white;
+    }
+    
+    .dashboard-header {
+        background: white;
+        color: black;
+        box-shadow: none;
+    }
+    
+    .dashboard-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    .action-btn {
+        display: none;
+    }
+}

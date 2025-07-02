@@ -1,0 +1,1490 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Xizmatni tahrirlash - {{ service.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #714b67;
+        --primary-light: #8e44ad;
+        --success-color: #28a745;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+        --info-color: #17a2b8;
+        --light-bg: #f8f9fa;
+        --border-color: #e9ecef;
+        --text-dark: #2c3e50;
+        --text-muted: #6c757d;
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.15);
+        --border-radius: 12px;
+        --transition: all 0.3s ease;
+    }
+
+    .service-edit-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background: var(--light-bg);
+        min-height: 100vh;
+    }
+
+    /* Header Section */
+    .edit-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+        color: white;
+        border-radius: var(--border-radius);
+        padding: 30px;
+        margin-bottom: 25px;
+        box-shadow: var(--shadow-lg);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .edit-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        transform: rotate(45deg);
+    }
+
+    .header-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .page-title {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 10px 0;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .page-title i {
+        width: 32px;
+        height: 32px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .page-subtitle {
+        font-size: 18px;
+        opacity: 0.9;
+        margin: 0;
+        font-weight: 400;
+    }
+
+    .breadcrumb-trail {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 15px;
+        font-size: 14px;
+        opacity: 0.8;
+    }
+
+    .breadcrumb-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Current Service Info */
+    .service-info-card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-sm);
+        margin-bottom: 25px;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+    }
+
+    .info-header {
+        background: var(--light-bg);
+        padding: 20px 25px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .info-header h3 {
+        margin: 0;
+        color: var(--text-dark);
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .info-content {
+        padding: 25px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .info-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    .info-value {
+        font-size: 16px;
+        color: var(--text-dark);
+        font-weight: 500;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-badge.active {
+        background: rgba(40, 167, 69, 0.1);
+        color: var(--success-color);
+        border: 1px solid rgba(40, 167, 69, 0.2);
+    }
+
+    .status-badge.inactive {
+        background: rgba(220, 53, 69, 0.1);
+        color: var(--danger-color);
+        border: 1px solid rgba(220, 53, 69, 0.2);
+    }
+
+    .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    /* Form Container */
+    .form-container {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+    }
+
+    .form-section {
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .form-section:last-child {
+        border-bottom: none;
+    }
+
+    .section-header {
+        background: var(--light-bg);
+        padding: 20px 25px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .section-title {
+        margin: 0 0 5px 0;
+        color: var(--text-dark);
+        font-size: 18px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .section-title i {
+        width: 24px;
+        height: 24px;
+        color: var(--primary-color);
+    }
+
+    .section-description {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 14px;
+    }
+
+    .section-content {
+        padding: 25px;
+    }
+
+    /* Company Read-only Section */
+    .company-readonly {
+        background: var(--light-bg);
+        border-radius: var(--border-radius);
+        padding: 20px;
+        border: 2px dashed var(--border-color);
+        position: relative;
+    }
+
+    .readonly-badge {
+        position: absolute;
+        top: -10px;
+        right: 15px;
+        background: var(--warning-color);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .company-card {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .company-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+    }
+
+    .company-details {
+        flex: 1;
+    }
+
+    .company-name {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 5px;
+    }
+
+    .company-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .company-stir,
+    .company-phone {
+        font-size: 14px;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Form Groups */
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .form-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .required-indicator {
+        color: var(--danger-color);
+        font-size: 16px;
+    }
+
+    .form-control {
+        padding: 12px 16px;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 16px;
+        transition: var(--transition);
+        background: white;
+        font-family: inherit;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(113, 75, 103, 0.1);
+    }
+
+    .form-control:invalid {
+        border-color: var(--danger-color);
+    }
+
+    select.form-control {
+        cursor: pointer;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 12px center;
+        background-repeat: no-repeat;
+        background-size: 16px;
+        padding-right: 40px;
+        appearance: none;
+    }
+
+    textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+        line-height: 1.6;
+    }
+
+    /* Amount Input */
+    .amount-input-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .amount-input-container .form-control {
+        padding-right: 60px;
+    }
+
+    .currency-label {
+        position: absolute;
+        right: 16px;
+        color: var(--text-muted);
+        font-weight: 600;
+        pointer-events: none;
+    }
+
+    /* File Upload */
+    .file-upload-area {
+        border: 2px dashed var(--border-color);
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        transition: var(--transition);
+        cursor: pointer;
+        position: relative;
+    }
+
+    .file-upload-area:hover {
+        border-color: var(--primary-color);
+        background: rgba(113, 75, 103, 0.02);
+    }
+
+    .file-upload-area input[type="file"] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .upload-icon {
+        width: 48px;
+        height: 48px;
+        background: var(--light-bg);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        color: var(--primary-color);
+        font-size: 20px;
+    }
+
+    .upload-text {
+        color: var(--text-dark);
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .upload-hint {
+        color: var(--text-muted);
+        font-size: 14px;
+    }
+
+    .current-file {
+        background: var(--light-bg);
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .file-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--primary-color);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+
+    .file-info {
+        flex: 1;
+    }
+
+    .file-name {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 2px;
+    }
+
+    .file-meta {
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+
+    .file-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .file-action {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .file-action.view {
+        background: var(--info-color);
+        color: white;
+    }
+
+    .file-action.remove {
+        background: var(--danger-color);
+        color: white;
+    }
+
+    /* Checkbox Styling */
+    .checkbox-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+    }
+
+    .checkbox-item {
+        background: var(--light-bg);
+        padding: 15px;
+        border-radius: 8px;
+        border: 2px solid transparent;
+        transition: var(--transition);
+        cursor: pointer;
+    }
+
+    .checkbox-item:hover {
+        border-color: var(--primary-color);
+        background: rgba(113, 75, 103, 0.02);
+    }
+
+    .checkbox-item input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        margin-right: 12px;
+        accent-color: var(--primary-color);
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        cursor: pointer;
+        margin: 0;
+    }
+
+    .checkbox-content {
+        flex: 1;
+    }
+
+    .checkbox-text {
+        font-weight: 600;
+        color: var(--text-dark);
+        display: block;
+        margin-bottom: 3px;
+    }
+
+    .checkbox-description {
+        color: var(--text-muted);
+        font-size: 13px;
+        line-height: 1.4;
+    }
+
+    /* Form Actions */
+    .form-actions {
+        padding: 25px;
+        background: var(--light-bg);
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        gap: 15px;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+        color: white;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: var(--text-dark);
+        border: 2px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        transform: translateY(-1px);
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: var(--text-muted);
+        border: 2px solid var(--border-color);
+    }
+
+    .btn-outline:hover {
+        border-color: var(--text-muted);
+        color: var(--text-dark);
+    }
+
+    .btn-loader {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top: 2px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Error Styling */
+    .field-error {
+        color: var(--danger-color);
+        font-size: 13px;
+        margin-top: 5px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .field-help {
+        color: var(--text-muted);
+        font-size: 13px;
+        margin-top: 5px;
+        line-height: 1.4;
+    }
+
+    /* Progress Indicator */
+    .form-progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--light-bg);
+        z-index: 1000;
+    }
+
+    .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+        width: 0%;
+        transition: width 0.3s ease;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .service-edit-container {
+            padding: 15px;
+        }
+
+        .edit-header {
+            padding: 20px;
+        }
+
+        .page-title {
+            font-size: 24px;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .checkbox-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .info-content {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+            gap: 12px;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .company-card {
+            flex-direction: column;
+            text-align: center;
+            gap: 15px;
+        }
+    }
+
+    /* Animation Classes */
+    .fade-in {
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .slide-up {
+        animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(10px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="service-edit-container">
+    <!-- Progress Indicator -->
+    <div class="form-progress">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Page Header -->
+    <div class="edit-header fade-in">
+        <div class="header-content">
+            <h1 class="page-title">
+                <i data-lucide="edit-3"></i>
+                Xizmatni tahrirlash
+            </h1>
+            <p class="page-subtitle">{{ service.name }}</p>
+            <div class="breadcrumb-trail">
+                <span class="breadcrumb-item">
+                    <i data-lucide="home"></i>
+                    Bosh sahifa
+                </span>
+                <i data-lucide="chevron-right"></i>
+                <span class="breadcrumb-item">
+                    <i data-lucide="briefcase"></i>
+                    Xizmatlar
+                </span>
+                <i data-lucide="chevron-right"></i>
+                <span class="breadcrumb-item">{{ service.name }}</span>
+                <i data-lucide="chevron-right"></i>
+                <span class="breadcrumb-item">Tahrirlash</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Service Info -->
+    <div class="service-info-card slide-up">
+        <div class="info-header">
+            <i data-lucide="info"></i>
+            <h3>Joriy xizmat ma'lumotlari</h3>
+        </div>
+        <div class="info-content">
+            <div class="info-item">
+                <span class="info-label">Kompaniya</span>
+                <span class="info-value">{{ service.company.name }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">STIR</span>
+                <span class="info-value">{{ service.company.stir }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Yaratilgan sana</span>
+                <span class="info-value">{{ service.created_at|date:'d F Y, H:i' }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Holat</span>
+                <span class="info-value">
+                    <span class="status-badge {% if service.is_active %}active{% else %}inactive{% endif %}">
+                        <span class="status-dot"></span>
+                        {% if service.is_active %}Faol{% else %}Nofaol{% endif %}
+                    </span>
+                </span>
+            </div>
+            {% if service.contract_amount %}
+            <div class="info-item">
+                <span class="info-label">Shartnoma summasi</span>
+                <span class="info-value">{{ service.contract_amount|floatformat:0 }} so'm</span>
+            </div>
+            {% endif %}
+            {% if service.end_date %}
+            <div class="info-item">
+                <span class="info-label">Tugash sanasi</span>
+                <span class="info-value">{{ service.end_date|date:'d F Y' }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Form Container -->
+    <div class="form-container slide-up">
+        <form method="post" enctype="multipart/form-data" class="service-form" id="serviceForm">
+            {% csrf_token %}
+
+            <!-- Company Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i data-lucide="building-2"></i>
+                        Kompaniya ma'lumotlari
+                    </h3>
+                    <p class="section-description">Kompaniyani o'zgartirish uchun yangi xizmat yarating</p>
+                </div>
+                <div class="section-content">
+                    <div class="company-readonly">
+                        <div class="readonly-badge">
+                            <i data-lucide="lock"></i>
+                            O'zgartirib bo'lmaydi
+                        </div>
+                        <div class="company-card">
+                            <div class="company-icon">
+                                <i data-lucide="building"></i>
+                            </div>
+                            <div class="company-details">
+                                <div class="company-name">{{ service.company.name }}</div>
+                                <div class="company-meta">
+                                    <div class="company-stir">
+                                        <i data-lucide="hash"></i>
+                                        STIR: {{ service.company.stir }}
+                                    </div>
+                                    <div class="company-phone">
+                                        <i data-lucide="phone"></i>
+                                        {{ service.company.phone_number|default:"Telefon ko'rsatilmagan" }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{ form.company.as_hidden }}
+                </div>
+            </div>
+
+            <!-- Service Details Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i data-lucide="file-text"></i>
+                        Xizmat tafsilotlari
+                    </h3>
+                    <p class="section-description">Asosiy xizmat ma'lumotlarini yangilang</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.name.id_for_label }}">
+                                {{ form.name.label }}
+                                <span class="required-indicator">*</span>
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="field-error">
+                                    <i data-lucide="alert-circle"></i>
+                                    {{ form.name.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="field-help">Xizmat nomi aniq va tushunarli bo'lishi kerak</div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.type.id_for_label }}">
+                                {{ form.type.label }}
+                                <span class="required-indicator">*</span>
+                            </label>
+                            {{ form.type }}
+                            {% if form.type.errors %}
+                                <div class="field-error">
+                                    <i data-lucide="alert-circle"></i>
+                                    {{ form.type.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.tender_status.id_for_label }}">
+                                {{ form.tender_status.label }}
+                            </label>
+                            {{ form.tender_status }}
+                            {% if form.tender_status.errors %}
+                                <div class="field-error">
+                                    <i data-lucide="alert-circle"></i>
+                                    {{ form.tender_status.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date & Contract Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i data-lucide="calendar"></i>
+                        Sana va shartnoma
+                    </h3>
+                    <p class="section-description">Xizmat muddati va moliyaviy ma'lumotlar</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.started_date.id_for_label }}">
+                                {{ form.started_date.label }}
+                                <span class="required-indicator">*</span>
+                            </label>
+                            {{ form.started_date }}
+                            {% if form.started_date.errors %}
+                                <div class="field-error">
+                                    <i data-lucide="alert-circle"></i>
+                                    {{ form.started_date.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.end_date.id_for_label }}">
+                                {{ form.end_date.label }}
+                            </label>
+                            {{ form.end_date }}
+                            {% if form.end_date.errors %}
+                                <div class="field-error">
+                                    <i data-lucide="alert-circle"></i>
+                                    {{ form.end_date.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="field-help">SMS eslatmalari tugash sanasiga qarab yuboriladi</div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.contract_amount.id_for_label }}">
+                                {{ form.contract_amount.label }}
+                            </label>
+                            <div class="amount-input-container">
+                                {{ form.contract_amount }}
+                                <span class="currency-label">so'm</span>
+                            </div>
+                            {% if form.contract_amount.errors %}
+                                <div class="field-error">
+                                    <i data-lucide="alert-circle"></i>
+                                    {{ form.contract_amount.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="field-help">Shartnoma bo'yicha umumiy summa</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.contract.id_for_label }}">
+                                {{ form.contract.label }}
+                            </label>
+                            
+                            {% if service.contract %}
+                            <div class="current-file">
+                                <div class="file-icon">
+                                    <i data-lucide="file-text"></i>
+                                </div>
+                                <div class="file-info">
+                                    <div class="file-name">Joriy shartnoma fayli</div>
+                                    <div class="file-meta">Yuklangan: {{ service.created_at|date:'d.m.Y' }}</div>
+                                </div>
+                                <div class="file-actions">
+                                    <a href="{{ service.contract.url }}" target="_blank" class="file-action view">
+                                        <i data-lucide="eye"></i>
+                                        Ko'rish
+                                    </a>
+                                    <a href="{{ service.contract.url }}" download class="file-action view">
+                                        <i data-lucide="download"></i>
+                                        Yuklab olish
+                                    </a>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="file-upload-area">
+                                {{ form.contract }}
+                                <div class="upload-icon">
+                                    <i data-lucide="upload"></i>
+                                </div>
+                                <div class="upload-text">
+                                    {% if service.contract %}
+                                        Yangi fayl yuklash
+                                    {% else %}
+                                        Shartnoma faylini yuklang
+                                    {% endif %}
+                                </div>
+                                <div class="upload-hint">PDF, DOC, DOCX (maksimal 5MB)</div>
+                            </div>
+                            
+                            {% if form.contract.errors %}
+                                <div class="field-error">
+                                    <i data-lucide="alert-circle"></i>
+                                    {{ form.contract.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SMS Settings Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i data-lucide="message-circle"></i>
+                        SMS xabarlari
+                    </h3>
+                    <p class="section-description">Avtomatik SMS eslatmalarini sozlang</p>
+                </div>
+                <div class="section-content">
+                    <div class="checkbox-grid">
+                        <div class="checkbox-item">
+                            {{ form.first_sms }}
+                            <label for="{{ form.first_sms.id_for_label }}" class="checkbox-label">
+                                <div class="checkbox-content">
+                                    <span class="checkbox-text">{{ form.first_sms.label }}</span>
+                                    <small class="checkbox-description">Xizmat boshlanganda mijozga SMS yuboriladi</small>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-item">
+                            {{ form.last_month_sms }}
+                            <label for="{{ form.last_month_sms.id_for_label }}" class="checkbox-label">
+                                <div class="checkbox-content">
+                                    <span class="checkbox-text">{{ form.last_month_sms.label }}</span>
+                                    <small class="checkbox-description">Tugashdan 1 oy oldin eslatma SMS</small>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-item">
+                            {{ form.last_sms }}
+                            <label for="{{ form.last_sms.id_for_label }}" class="checkbox-label">
+                                <div class="checkbox-content">
+                                    <span class="checkbox-text">{{ form.last_sms.label }}</span>
+                                    <small class="checkbox-description">Tugash sanasida yakuniy SMS</small>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Settings Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i data-lucide="settings"></i>
+                        Qo'shimcha sozlamalar
+                    </h3>
+                    <p class="section-description">Holat va izohlar</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <div class="checkbox-item">
+                                {{ form.is_active }}
+                                <label for="{{ form.is_active.id_for_label }}" class="checkbox-label">
+                                    <div class="checkbox-content">
+                                        <span class="checkbox-text">{{ form.is_active.label }}</span>
+                                        <small class="checkbox-description">Nofaol xizmatlar hisobotlarda ko'rsatilmaydi</small>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.comment.id_for_label }}">
+                                {{ form.comment.label }}
+                            </label>
+                            {{ form.comment }}
+                            {% if form.comment.errors %}
+                                <div class="field-error">
+                                    <i data-lucide="alert-circle"></i>
+                                    {{ form.comment.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="field-help">Xizmat haqida qo'shimcha ma'lumotlar</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="button" class="btn btn-outline" onclick="resetForm()">
+                    <i data-lucide="rotate-ccw"></i>
+                    Bekor qilish
+                </button>
+                <a href="{% url 'main:service_detail' service.id %}" class="btn btn-secondary">
+                    <i data-lucide="arrow-left"></i>
+                    Orqaga qaytish
+                </a>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <i data-lucide="save"></i>
+                    <span>O'zgarishlarni saqlash</span>
+                    <div class="btn-loader" style="display: none;">
+                        <div class="spinner"></div>
+                    </div>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form elements
+    const form = document.getElementById('serviceForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const progressBar = document.getElementById('progressBar');
+    
+    // Store original form data for reset functionality
+    const originalFormData = new FormData(form);
+    const originalValues = {};
+    
+    // Store original values
+    for (let [key, value] of originalFormData.entries()) {
+        originalValues[key] = value;
+    }
+    
+    // Progress calculation
+    function updateProgress() {
+        const formElements = form.querySelectorAll('input, select, textarea');
+        const totalFields = formElements.length;
+        let filledFields = 0;
+        
+        formElements.forEach(element => {
+            if (element.type === 'checkbox') {
+                if (element.checked) filledFields++;
+            } else if (element.type === 'file') {
+                if (element.files.length > 0) filledFields++;
+            } else if (element.value.trim() !== '') {
+                filledFields++;
+            }
+        });
+        
+        const progress = (filledFields / totalFields) * 100;
+        progressBar.style.width = progress + '%';
+    }
+    
+    // Add event listeners for progress tracking
+    form.addEventListener('input', updateProgress);
+    form.addEventListener('change', updateProgress);
+    
+    // Initial progress calculation
+    updateProgress();
+    
+    // Form submission handling
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.querySelector('span').style.display = 'none';
+        submitBtn.querySelector('.btn-loader').style.display = 'flex';
+        
+        // Validate form
+        if (validateForm()) {
+            // Submit form
+            setTimeout(() => {
+                form.submit();
+            }, 500);
+        } else {
+            // Reset button state
+            submitBtn.disabled = false;
+            submitBtn.querySelector('span').style.display = 'inline';
+            submitBtn.querySelector('.btn-loader').style.display = 'none';
+        }
+    });
+    
+    // Form validation
+    function validateForm() {
+        let isValid = true;
+        const requiredFields = form.querySelectorAll('[required]');
+        
+        // Clear previous errors
+        document.querySelectorAll('.field-error').forEach(error => {
+            if (!error.classList.contains('server-error')) {
+                error.remove();
+            }
+        });
+        
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                isValid = false;
+                showFieldError(field, 'Bu maydon to\'ldirilishi shart');
+            }
+        });
+        
+        // Validate dates
+        const startDate = form.querySelector('[name="started_date"]');
+        const endDate = form.querySelector('[name="end_date"]');
+        
+        if (startDate.value && endDate.value) {
+            if (new Date(startDate.value) >= new Date(endDate.value)) {
+                isValid = false;
+                showFieldError(endDate, 'Tugash sanasi boshlanish sanasidan kech bo\'lishi kerak');
+            }
+        }
+        
+        // Validate contract amount
+        const contractAmount = form.querySelector('[name="contract_amount"]');
+        if (contractAmount.value && parseFloat(contractAmount.value) < 0) {
+            isValid = false;
+            showFieldError(contractAmount, 'Shartnoma summasi manfiy bo\'lishi mumkin emas');
+        }
+        
+        return isValid;
+    }
+    
+    // Show field error
+    function showFieldError(field, message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'field-error';
+        errorDiv.innerHTML = `<i data-lucide="alert-circle"></i> ${message}`;
+        
+        field.parentNode.appendChild(errorDiv);
+        field.focus();
+        
+        // Initialize lucide icon
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    }
+    
+    // File upload handling
+    const fileInput = form.querySelector('input[type="file"]');
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate file size (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    showFieldError(fileInput, 'Fayl hajmi 5MB dan oshmasligi kerak');
+                    fileInput.value = '';
+                    return;
+                }
+                
+                // Validate file type
+                const allowedTypes = ['.pdf', '.doc', '.docx'];
+                const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+                
+                if (!allowedTypes.includes(fileExtension)) {
+                    showFieldError(fileInput, 'Faqat PDF, DOC, DOCX formatdagi fayllar ruxsat etilgan');
+                    fileInput.value = '';
+                    return;
+                }
+                
+                updateProgress();
+            }
+        });
+    }
+    
+    // Amount input formatting
+    const amountInput = form.querySelector('[name="contract_amount"]');
+    if (amountInput) {
+        amountInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^\d.]/g, '');
+            
+            // Format number with commas
+            if (value) {
+                const parts = value.split('.');
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                if (parts.length > 1) {
+                    parts[1] = parts[1].substring(0, 2); // Limit to 2 decimal places
+                }
+                e.target.value = parts.join('.');
+            }
+        });
+    }
+    
+    // Auto-save functionality
+    let autoSaveTimer;
+    function autoSave() {
+        clearTimeout(autoSaveTimer);
+        autoSaveTimer = setTimeout(() => {
+            const formData = new FormData(form);
+            
+            // Save to localStorage
+            const saveData = {};
+            for (let [key, value] of formData.entries()) {
+                saveData[key] = value;
+            }
+            
+            localStorage.setItem('service_edit_draft_{{ service.id }}', JSON.stringify(saveData));
+            
+            // Show auto-save indicator
+            showToast('Qoralama saqlandi', 'info', 2000);
+        }, 2000);
+    }
+    
+    // Add auto-save listeners
+    form.addEventListener('input', autoSave);
+    form.addEventListener('change', autoSave);
+    
+    // Load draft on page load
+    const savedDraft = localStorage.getItem('service_edit_draft_{{ service.id }}');
+    if (savedDraft) {
+        try {
+            const draftData = JSON.parse(savedDraft);
+            const shouldLoadDraft = confirm('Saqlangan qoralama topildi. Yuklansinmi?');
+            
+            if (shouldLoadDraft) {
+                Object.keys(draftData).forEach(key => {
+                    const field = form.querySelector(`[name="${key}"]`);
+                    if (field) {
+                        if (field.type === 'checkbox') {
+                            field.checked = draftData[key] === 'on';
+                        } else if (field.type !== 'file') {
+                            field.value = draftData[key];
+                        }
+                    }
+                });
+                updateProgress();
+            }
+        } catch (e) {
+            console.error('Error loading draft:', e);
+        }
+    }
+    
+    // Clear draft on successful submission
+    form.addEventListener('submit', function() {
+        localStorage.removeItem('service_edit_draft_{{ service.id }}');
+    });
+    
+    // Initialize Lucide icons
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+});
+
+// Reset form function
+function resetForm() {
+    if (confirm('Barcha o\'zgarishlar bekor qilinadi. Davom etasizmi?')) {
+        const form = document.getElementById('serviceForm');
+        form.reset();
+        
+        // Clear draft
+        localStorage.removeItem('service_edit_draft_{{ service.id }}');
+        
+        // Update progress
+        const progressBar = document.getElementById('progressBar');
+        progressBar.style.width = '0%';
+        
+        // Clear custom errors
+        document.querySelectorAll('.field-error:not(.server-error)').forEach(error => {
+            error.remove();
+        });
+        
+        showToast('Form asl holatiga qaytarildi', 'info');
+    }
+}
+
+// Toast notification function
+function showToast(message, type = 'info', duration = 3000) {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        z-index: 10000;
+        animation: slideInRight 0.3s ease-out;
+        max-width: 300px;
+        font-weight: 500;
+    `;
+    
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideOutRight 0.3s ease-out';
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 300);
+    }, duration);
+}
+
+// Add CSS for toast animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl+S to save
+    if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        document.getElementById('submitBtn').click();
+    }
+    
+    // Ctrl+Z to reset
+    if (e.ctrlKey && e.key === 'z') {
+        e.preventDefault();
+        resetForm();
+    }
+    
+    // Escape to go back
+    if (e.key === 'Escape') {
+        const backButton = document.querySelector('.btn-secondary');
+        if (backButton) {
+            backButton.click();
+        }
+    }
+});
+</script>
+{% endblock %}

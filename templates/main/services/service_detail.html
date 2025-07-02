@@ -1,0 +1,563 @@
+<!-- templates/main/services/service_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/main/services.css' %}">
+<style>
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid;
+    transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+    color: white;
+    text-decoration: none;
+}
+
+/* Modal improvements */
+.modal-header .btn-close {
+    padding: 0.5rem;
+    margin: -0.5rem -0.5rem -0.5rem auto;
+    font-size: 1.25rem;
+    background: none;
+    border: 0;
+    opacity: 0.5;
+}
+
+.modal-header .btn-close:hover {
+    opacity: 0.75;
+}
+
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Better modal positioning */
+.modal-dialog {
+    margin: 1.75rem auto;
+}
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+
+{% endblock %}
+
+{% block content %}
+<!-- Delete Modal -->
+
+<div class="modal fade" id="companyModal" tabindex="-1">
+    <!-- Company modal content -->
+</div>
+
+<div class="service-detail-page">
+    
+    <!-- Service Header -->
+    <div class="service-header-card">
+        <div class="service-header-content">
+            <div class="service-basic-info">
+                <h1 class="service-title">{{ service.name }}</h1>
+                <div class="service-meta-badges">
+                    <span class="company-badge">
+                        <i data-lucide="building"></i>
+                        <a href="{% url 'main:company_detail' service.company.id %}" class="company-link">{{ service.company.name }}</a>
+                    </span>
+                    <span class="service-type-badge {{ service.type }}">
+                        {{ service.get_type_display }}
+                    </span>
+                    <span class="tender-status-badge {{ service.tender_status }}">
+                        {% if service.tender_status == 'won' %}
+                            <i data-lucide="trophy"></i>
+                        {% elif service.tender_status == 'lost' %}
+                            <i data-lucide="x-circle"></i>
+                        {% elif service.tender_status == 'canceled' %}
+                            <i data-lucide="slash"></i>
+                        {% else %}
+                            <i data-lucide="clock"></i>
+                        {% endif %}
+                        {{ service.get_tender_status_display }}
+                    </span>
+                    {% if not service.is_active %}
+                    <span class="status-badge inactive">
+                        <i data-lucide="pause"></i>
+                        Nofaol
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="service-dates">
+                <div class="date-item">
+                    <label>Boshlandi:</label>
+                    <span>{{ service.started_date|date:'d F Y' }}</span>
+                </div>
+                {% if service.end_date %}
+                <div class="date-item">
+                    <label>Tugaydi:</label>
+                    <span class="{% if service.end_date < today %}expired{% endif %}">
+                        {{ service.end_date|date:'d F Y' }}
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Service Header Actions -->
+        <div class="service-header-actions">
+            {% if can_edit_service %}
+            <a href="{% url 'main:service_edit' service.id %}" class="btn btn-primary-modern">
+                <i data-lucide="edit"></i>
+                Tahrirlash
+            </a>
+            <a href="{% url 'main:service_delete' service.id %}" class="btn btn-danger">
+                <i data-lucide="trash-2"></i>
+                O'chirish
+            </a>
+            {% endif %}
+            
+            {% if service.contract %}
+            <a href="{{ service.contract.url }}" target="_blank" class="btn btn-secondary-modern">
+                <i data-lucide="file-text"></i>
+                Shartnoma
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Financial Summary -->
+    <div class="financial-summary-grid">
+        <div class="financial-card income">
+            <div class="financial-icon">
+                <i data-lucide="trending-up"></i>
+            </div>
+            <div class="financial-content">
+                <div class="financial-amount"id="totalIncome">{{ total_income|floatformat:0|intcomma  }}</div>
+                <div class="financial-label">Jami daromad</div>
+                <div class="financial-currency">so'm</div>
+            </div>
+        </div>
+        
+        <div class="financial-card expense">
+            <div class="financial-icon">
+                <i data-lucide="trending-down"></i>
+            </div>
+            <div class="financial-content">
+                <div class="financial-amount">{{ total_expenses|floatformat:0 |intcomma}}</div>
+                <div class="financial-label">Jami xarajat</div>
+                <div class="financial-currency">so'm</div>
+            </div>
+        </div>
+        
+        <div class="financial-card profit {% if profit >= 0 %}positive{% else %}negative{% endif %}">
+            <div class="financial-icon">
+                <i data-lucide="{% if profit >= 0 %}dollar-sign{% else %}minus{% endif %}"></i>
+            </div>
+            <div class="financial-content">
+                <div class="financial-amount">{{ profit|floatformat:0|intcomma }}</div>
+                <div class="financial-label">Sof foyda</div>
+                <div class="financial-currency">so'm</div>
+            </div>
+        </div>
+        
+        {% if service.contract_amount %}
+        <div class="financial-card contract">
+            <div class="financial-icon">
+                <i data-lucide="file-text"></i>
+            </div>
+            <div class="financial-content">
+                <div class="financial-amount">{{ service.contract_amount|floatformat:0|intcomma }}</div>
+                <div class="financial-label">Shartnoma summasi</div>
+                <div class="financial-currency">so'm</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Main Content Grid -->
+    <div class="service-content-grid">
+        
+        <!-- Service Information -->
+        <div class="info-section">
+            <div class="section-header">
+                <h3>
+                    <i data-lucide="info"></i>
+                    Asosiy ma'lumotlar
+                </h3>
+            </div>
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Kompaniya:</label>
+                    <div class="info-value">
+                        <a href="#" class="company-link-detail">
+                            {{ service.company.name }}
+                        </a>
+                        <small>STIR: {{ service.company.stir }}</small>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <label>Xizmat turi:</label>
+                    <div class="info-value">
+                        <span class="service-type-badge {{ service.type }}">
+                            {{ service.get_type_display }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <label>Yaratgan:</label>
+                    <div class="info-value">
+                        <div class="creator-info">
+                            <strong>{{ service.created_by.first_name }} {{ service.created_by.last_name }}</strong>
+                            <small>{{ service.created_at|date:'d F Y, H:i' }}</small>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if service.updated_by %}
+                <div class="info-item">
+                    <label>Yangilagan:</label>
+                    <div class="info-value">
+                        <div class="creator-info">
+                            <strong>{{ service.updated_by.first_name }} {{ service.updated_by.last_name }}</strong>
+                            <small>{{ service.updated_at|date:'d F Y, H:i' }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if service.comment %}
+                <div class="info-item full-width">
+                    <label>Izoh:</label>
+                    <div class="info-value">
+                        <p class="comment-text">{{ service.comment }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- SMS Settings -->
+            <div class="sms-settings">
+                <h4>
+                    <i data-lucide="message-circle"></i>
+                    SMS sozlamalari
+                </h4>
+                <div class="sms-toggles">
+                    <div class="sms-toggle">
+                        <span class="toggle-label">Birinchi SMS:</span>
+                        <span class="toggle-status {% if service.first_sms %}active{% endif %}">
+                            {% if service.first_sms %}Yoqilgan{% else %}O'chirilgan{% endif %}
+                        </span>
+                    </div>
+                    <div class="sms-toggle">
+                        <span class="toggle-label">Oxirgi oy SMS:</span>
+                        <span class="toggle-status {% if service.last_month_sms %}active{% endif %}">
+                            {% if service.last_month_sms %}Yoqilgan{% else %}O'chirilgan{% endif %}
+                        </span>
+                    </div>
+                    <div class="sms-toggle">
+                        <span class="toggle-label">Oxirgi SMS:</span>
+                        <span class="toggle-status {% if service.last_sms %}active{% endif %}">
+                            {% if service.last_sms %}Yoqilgan{% else %}O'chirilgan{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+
+
+                <!-- SMS Settings -->
+            <div class="sms-settings">
+                <h4>
+                    <i data-lucide="message-circle"></i>
+                    Yuborilgan xabarlar
+                </h4>
+                <div class="sms-toggles">
+                    <div class="sms-toggle">
+                        <span class="toggle-label">Birinchi SMS:</span>
+{% if first_sms.is_sent %}
+    Yuborilgan {{ first_sms.date }}
+{% else %}
+    Yuborilmagan
+{% endif %}
+                        </span>
+                    </div>
+                    <div class="sms-toggle">
+                        <span class="toggle-label">Oxirgi oy SMS:</span>
+{% if last_month_sms.is_sent %}
+    Yuborilgan {{ last_month_sms.date }}
+{% else %}
+    Yuborilmagan
+{% endif %}                        </span>
+                    </div>
+                    <div class="sms-toggle">
+                        <span class="toggle-label">Oxirgi SMS:</span>
+{% if last_sms.is_sent %}
+    Yuborilgan {{ last_sms.date }}
+{% else %}
+    Yuborilmagan
+{% endif %}                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+        
+        
+        <!-- Financial Transactions -->
+        <div class="transactions-section">
+            
+            <!-- Income Section -->
+            <div class="transaction-tab">
+                <div class="tab-header">
+                    <h3>
+                        <i data-lucide="trending-up"></i>
+                        To'lovlar
+                        <span class="count-badge">{{ incomes.count }}</span>
+                    </h3>
+                    <a href="{% url 'main:service_income_add' service.id %}" class="btn btn-sm btn-primary">
+                        <i data-lucide="plus"></i>
+                        Qo'shish
+                    </a>
+                </div>
+                
+                <div class="transactions-list">
+                    {% for income in incomes %}
+                    <div class="transaction-item income">
+                        <div class="transaction-icon">
+                            <i data-lucide="arrow-up-right"></i>
+                        </div>
+                        <div class="transaction-content">
+                            <div class="transaction-amount">{{ income.amount|floatformat:0|intcomma }} so'm</div>
+                            <div class="transaction-meta">
+                                <span class="transaction-method">{{ income.get_payment_method_display }}</span>
+                                <span class="transaction-date">{{ income.payment_date|date:'d.m.Y' }}</span>
+                            </div>
+                            {% if income.notes %}
+                            <div class="transaction-notes">{{ income.notes|truncatechars:50 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="transaction-status">
+                            <span class="status-badge {{ income.status }}">
+                                {{ income.get_status_display }}
+                            </span>
+                        </div>
+                        {% if can_edit_finance %}
+                        <div class="transaction-actions">
+                            <a href="{% url 'main:income_edit' income.id %}" class="btn btn-sm btn-outline">
+                                <img src="{% static 'icon/edit.png' %}" alt="Edit" width="16" height="16">
+                            </a>
+                            <a href="{% url 'main:income_delete' income.id %}" class="btn btn-sm btn-outline">
+                                <img src="{% static 'icon/delete.png' %}" alt="Delete" width="16" height="16">
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="empty-transactions">
+                        <i data-lucide="trending-up"></i>
+                        <p>Hozircha daromadlar yo'q</p>
+                        <a href="{% url 'main:service_income_add' service.id %}" class="btn btn-sm btn-primary">
+                            Birinchi daromadni qo'shish
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Expenses Section -->
+            <div class="transaction-tab">
+                <div class="tab-header">
+                    <h3>
+                        <i data-lucide="trending-down"></i>
+                        Xarajatlar
+                        <span class="count-badge">{{ expenses.count }}</span>
+                    </h3>
+                    <a href="{% url 'main:service_expense_add' service.id %}" class="btn btn-sm btn-secondary">
+                        <i data-lucide="plus"></i>
+                        Qo'shish
+                    </a>
+                </div>
+                
+                <div class="transactions-list">
+                    {% for expense in expenses %}
+                    <div class="transaction-item expense">
+                        <div class="transaction-icon">
+                            <i data-lucide="arrow-down-left"></i>
+                        </div>
+                        <div class="transaction-content">
+                            <div class="transaction-title">{{ expense.title }}</div>
+                            <div class="transaction-amount">{{ expense.amount|floatformat:0|intcomma }} so'm</div>
+                            <div class="transaction-meta">
+                                <span class="transaction-category">{{ expense.category.name }}</span>
+                                <span class="transaction-employee">{{ expense.employee.first_name }}</span>
+                                <span class="transaction-date">{{ expense.date|date:'d.m.Y' }}</span>
+                            </div>
+                            {% if expense.notes %}
+                            <div class="transaction-notes">{{ expense.notes|truncatechars:50 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="transaction-method">
+                            <span class="method-badge">{{ expense.get_payment_method_display }}</span>
+                        </div>
+                        {% if can_edit_finance %}
+                        <div class="transaction-actions">
+                            <a href="{% url 'main:expense_edit' expense.id %}" class="btn btn-sm btn-outline">
+                                <img src="{% static 'icon/edit.png' %}" alt="Edit" width="16" height="16">
+                            </a>
+                                      <a href="{% url 'main:expense_delete' expense.id %}" class="btn btn-sm btn-outline">
+                                <img src="{% static 'icon/delete.png' %}" alt="Edit" width="16" height="16">
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="empty-transactions">
+                        <i data-lucide="trending-down"></i>
+                        <p>Hozircha xarajatlar yo'q</p>
+                        <a href="{% url 'main:service_expense_add' service.id %}" class="btn btn-sm btn-secondary">
+                            Birinchi xarajatni qo'shish
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/main/services.js' %}"></script>
+<script>
+// Delete functions
+function deleteIncome(incomeId) {
+    showDeleteModal('income', incomeId);
+}
+
+function deleteExpense(expenseId) {
+    showDeleteModal('expense', expenseId);
+}
+
+function showDeleteModal(type, id) {
+    const modalEl = document.getElementById('deleteModal');
+    const modal = new bootstrap.Modal(modalEl, {
+        backdrop: true,
+        keyboard: true,
+        focus: true
+    });
+    
+    const confirmBtn = document.getElementById('confirmDelete');
+    
+    // Clear previous event listeners
+    const newConfirmBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+    
+    newConfirmBtn.onclick = function() {
+        const url = type === 'income' ? 
+            `/income/${id}/delete/` : 
+            `/expense/${id}/delete/`;
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCSRFToken(),
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                if (typeof showToast === 'function') {
+                    showToast('O\'chirishda xatolik yuz berdi', 'error');
+                } else {
+                    alert('O\'chirishda xatolik yuz berdi');
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            if (typeof showToast === 'function') {
+                showToast('O\'chirishda xatolik yuz berdi', 'error');
+            } else {
+                alert('O\'chirishda xatolik yuz berdi');
+            }
+        });
+        
+        modal.hide();
+    };
+    
+    modal.show();
+}
+
+// Emergency close function
+function forceCloseModal() {
+    const modalEl = document.getElementById('deleteModal');
+    const backdrop = document.querySelector('.modal-backdrop');
+    
+    modalEl.style.display = 'none';
+    modalEl.classList.remove('show');
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+    
+    if (backdrop) {
+        backdrop.remove();
+    }
+}
+
+// Add global event listeners for modal closing
+document.addEventListener('DOMContentLoaded', function() {
+    const modalEl = document.getElementById('deleteModal');
+    
+    // Close on backdrop click
+    modalEl.addEventListener('click', function(e) {
+        if (e.target === modalEl) {
+            forceCloseModal();
+        }
+    });
+    
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modalEl.classList.contains('show')) {
+            forceCloseModal();
+        }
+    });
+});
+
+function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+           document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+}
+</script>
+{% endblock %}

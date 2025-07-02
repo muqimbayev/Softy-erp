@@ -1,0 +1,605 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .edit-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .edit-header {
+        background: linear-gradient(45deg, #714b67, #8e44ad);
+        color: white;
+        padding: 25px 30px;
+        border-bottom: 3px solid #5a3a54;
+    }
+    
+    .edit-header h2 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+    }
+    
+    .edit-header p {
+        margin: 8px 0 0 0;
+        opacity: 0.9;
+        font-size: 16px;
+    }
+    
+    .edit-body {
+        padding: 30px;
+    }
+    
+    .form-group {
+        margin-bottom: 30px;
+    }
+    
+    .form-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 16px;
+    }
+    
+    .label-icon {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 14px;
+    }
+    
+    .label-icon.first {
+        background: linear-gradient(45deg, #28a745, #20c997);
+    }
+    
+    .label-icon.last-month {
+        background: linear-gradient(45deg, #ffc107, #fd7e14);
+    }
+    
+    .label-icon.last {
+        background: linear-gradient(45deg, #dc3545, #e74c3c);
+    }
+    
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 15px;
+        font-size: 16px;
+        line-height: 1.6;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+    
+    .form-control:focus {
+        border-color: #714b67;
+        box-shadow: 0 0 0 3px rgba(113, 75, 103, 0.1);
+        background: white;
+        outline: none;
+    }
+    
+    .form-help {
+        background: #e7f3ff;
+        border: 1px solid #b3d9ff;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 10px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .form-help i {
+        color: #007bff;
+        margin-top: 2px;
+    }
+    
+    .form-help-content {
+        flex: 1;
+    }
+    
+    .form-help h6 {
+        margin: 0 0 8px 0;
+        color: #007bff;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    
+    .form-help p {
+        margin: 0 0 10px 0;
+        color: #495057;
+        font-size: 14px;
+    }
+    
+    .variables-demo {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    
+    .variable-demo {
+        background: #007bff;
+        color: white;
+        padding: 3px 8px;
+        border-radius: 10px;
+        font-size: 11px;
+        font-family: monospace;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .variable-demo:hover {
+        background: #0056b3;
+        transform: scale(1.05);
+    }
+    
+    .character-counter {
+        text-align: right;
+        font-size: 12px;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+    
+    .character-counter.warning {
+        color: #fd7e14;
+    }
+    
+    .character-counter.danger {
+        color: #dc3545;
+    }
+    
+    .preview-section {
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 15px;
+    }
+    
+    .preview-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .preview-header h6 {
+        margin: 0;
+        color: #495057;
+        font-weight: 600;
+    }
+    
+    .preview-content {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 15px;
+        color: #495057;
+        font-style: italic;
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .btn-preview {
+        background: #17a2b8;
+        border: none;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 6px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-preview:hover {
+        background: #138496;
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 25px 30px;
+        background: #f8f9fa;
+        border-top: 2px solid #e9ecef;
+        gap: 15px;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(45deg, #714b67, #8e44ad);
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(45deg, #5a3a54, #7d3c98);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(113, 75, 103, 0.3);
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+    
+    .btn-success {
+        background: #28a745;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 6px;
+        color: white;
+        font-weight: 500;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-success:hover {
+        background: #218838;
+    }
+    
+    .alert {
+        border: none;
+        border-radius: 10px;
+        padding: 15px 20px;
+        margin-bottom: 20px;
+    }
+    
+    .alert-warning {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        color: #856404;
+    }
+    
+    .alert-info {
+        background: #d1ecf1;
+        border-left: 4px solid #17a2b8;
+        color: #0c5460;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="edit-container">
+                <!-- Header -->
+                <div class="edit-header">
+                    <h2><i class="fas fa-edit"></i> SMS Sozlamalarini Tahrirlash</h2>
+                    <p>Avtomatik SMS xabarlarini sozlang va shaxsiylashtirivaring</p>
+                </div>
+                
+                <!-- Body -->
+                <div class="edit-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}"></i>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-lightbulb"></i>
+                        <strong>Maslahat:</strong> Template o'zgaruvchilaridan foydalanib xabarlarni shaxsiylashtirishingiz mumkin. 
+                        O'zgaruvchilarni bosib, matn maydoniga qo'shishingiz mumkin.
+                    </div>
+                    
+                    <form method="post" id="settingsForm">
+                        {% csrf_token %}
+                        
+                        <!-- Birinchi xabar -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="label-icon first">
+                                    <i class="fas fa-play"></i>
+                                </span>
+                                Birinchi xabar
+                            </label>
+                            {{ form.first_message }}
+                            <div class="character-counter" id="firstCounter">0 / 1000 belgi</div>
+                            
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                <div class="form-help-content">
+                                    <h6>Xizmat boshlanishida yuboriladi</h6>
+                                    <p>Bu xabar yangi xizmat yaratilganda avtomatik ravishda yuboriladi</p>
+                                    <div class="variables-demo">
+                                        <span class="variable-demo" onclick="insertVariable('first_message', '{company_name}')">{company_name}</span>
+                                        <span class="variable-demo" onclick="insertVariable('first_message', '{service_name}')">{service_name}</span>
+                                        <span class="variable-demo" onclick="insertVariable('first_message', '{end_date}')">{end_date}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="preview-section">
+                                <div class="preview-header">
+                                    <h6><i class="fas fa-eye"></i> Ko'rinish:</h6>
+                                    <button type="button" class="btn-preview" onclick="previewMessage('first')">
+                                        Namuna ko'rish
+                                    </button>
+                                </div>
+                                <div class="preview-content" id="firstPreview">
+                                    Namuna ko'rish uchun "Namuna ko'rish" tugmasini bosing
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Oxirgi oy xabari -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="label-icon last-month">
+                                    <i class="fas fa-clock"></i>
+                                </span>
+                                Oxirgi oy xabari
+                            </label>
+                            {{ form.last_month_message }}
+                            <div class="character-counter" id="lastMonthCounter">0 / 1000 belgi</div>
+                            
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                <div class="form-help-content">
+                                    <h6>Xizmat tugashiga 1 oy qolganda yuboriladi</h6>
+                                    <p>Bu xabar xizmat tugash sanasidan 30 kun oldin avtomatik yuboriladi</p>
+                                    <div class="variables-demo">
+                                        <span class="variable-demo" onclick="insertVariable('last_month_message', '{company_name}')">{company_name}</span>
+                                        <span class="variable-demo" onclick="insertVariable('last_month_message', '{service_name}')">{service_name}</span>
+                                        <span class="variable-demo" onclick="insertVariable('last_month_message', '{end_date}')">{end_date}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="preview-section">
+                                <div class="preview-header">
+                                    <h6><i class="fas fa-eye"></i> Ko'rinish:</h6>
+                                    <button type="button" class="btn-preview" onclick="previewMessage('last_month')">
+                                        Namuna ko'rish
+                                    </button>
+                                </div>
+                                <div class="preview-content" id="lastMonthPreview">
+                                    Namuna ko'rish uchun "Namuna ko'rish" tugmasini bosing
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Oxirgi xabar -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="label-icon last">
+                                    <i class="fas fa-stop"></i>
+                                </span>
+                                Oxirgi xabar
+                            </label>
+                            {{ form.last_message }}
+                            <div class="character-counter" id="lastCounter">0 / 1000 belgi</div>
+                            
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                <div class="form-help-content">
+                                    <h6>Xizmat tugagandan keyin yuboriladi</h6>
+                                    <p>Bu xabar xizmat tugash sanasida yoki undan keyin yuboriladi</p>
+                                    <div class="variables-demo">
+                                        <span class="variable-demo" onclick="insertVariable('last_message', '{company_name}')">{company_name}</span>
+                                        <span class="variable-demo" onclick="insertVariable('last_message', '{service_name}')">{service_name}</span>
+                                        <span class="variable-demo" onclick="insertVariable('last_message', '{end_date}')">{end_date}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="preview-section">
+                                <div class="preview-header">
+                                    <h6><i class="fas fa-eye"></i> Ko'rinish:</h6>
+                                    <button type="button" class="btn-preview" onclick="previewMessage('last')">
+                                        Namuna ko'rish
+                                    </button>
+                                </div>
+                                <div class="preview-content" id="lastPreview">
+                                    Namuna ko'rish uchun "Namuna ko'rish" tugmasini bosing
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Actions -->
+                <div class="form-actions">
+                    <div>
+            
+                    </div>
+                    <div style="display: flex; gap: 15px;">
+                        <a href="{% url 'main:settings_list' %}" class="btn-secondary">
+                            <i class="fas fa-times"></i>
+                            Bekor qilish
+                        </a>
+                        <button type="submit" form="settingsForm" class="btn-primary">
+                            <i class="fas fa-save"></i>
+                            Saqlash
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Character counters
+    function updateCounter(fieldId, counterId) {
+        const field = document.getElementById(fieldId);
+        const counter = document.getElementById(counterId);
+        const length = field.value.length;
+        
+        counter.textContent = `${length} / 1000 belgi`;
+        
+        if (length > 800) {
+            counter.className = 'character-counter danger';
+        } else if (length > 600) {
+            counter.className = 'character-counter warning';
+        } else {
+            counter.className = 'character-counter';
+        }
+    }
+    
+    // Initialize counters
+    document.addEventListener('DOMContentLoaded', function() {
+        const fields = [
+            { field: 'id_first_message', counter: 'firstCounter' },
+            { field: 'id_last_month_message', counter: 'lastMonthCounter' },
+            { field: 'id_last_message', counter: 'lastCounter' }
+        ];
+        
+        fields.forEach(item => {
+            const field = document.getElementById(item.field);
+            if (field) {
+                updateCounter(item.field, item.counter);
+                field.addEventListener('input', () => updateCounter(item.field, item.counter));
+            }
+        });
+    });
+    
+    // Insert variable into text field
+    function insertVariable(fieldName, variable) {
+        const field = document.getElementById(`id_${fieldName}`);
+        if (field) {
+            const cursorPos = field.selectionStart;
+            const textBefore = field.value.substring(0, cursorPos);
+            const textAfter = field.value.substring(field.selectionEnd, field.value.length);
+            
+            field.value = textBefore + variable + textAfter;
+            field.focus();
+            field.setSelectionRange(cursorPos + variable.length, cursorPos + variable.length);
+            
+            // Update character counter
+            const counterMap = {
+                'first_message': 'firstCounter',
+                'last_month_message': 'lastMonthCounter',
+                'last_message': 'lastCounter'
+            };
+            
+            if (counterMap[fieldName]) {
+                updateCounter(`id_${fieldName}`, counterMap[fieldName]);
+            }
+        }
+    }
+    
+    // Preview message
+    function previewMessage(type) {
+        const fieldMap = {
+            'first': 'id_first_message',
+            'last_month': 'id_last_month_message',
+            'last': 'id_last_message'
+        };
+        
+        const previewMap = {
+            'first': 'firstPreview',
+            'last_month': 'lastMonthPreview',
+            'last': 'lastPreview'
+        };
+        
+        const field = document.getElementById(fieldMap[type]);
+        const preview = document.getElementById(previewMap[type]);
+        
+        if (field && preview) {
+            let message = field.value || 'Xabar matni kiritilmagan';
+            
+            // Replace template variables with sample data
+            message = message.replace(/{company_name}/g, 'ABC Kompaniya');
+            message = message.replace(/{service_name}/g, 'Web sayt yaratish');
+            message = message.replace(/{end_date}/g, '31.12.2024');
+            
+            preview.textContent = message;
+            preview.style.fontStyle = field.value ? 'normal' : 'italic';
+            preview.style.color = field.value ? '#495057' : '#6c757d';
+        }
+    }
+    
+    // Test all messages
+    function testAllMessages() {
+        previewMessage('first');
+        previewMessage('last_month');
+        previewMessage('last');
+        
+        // Scroll to first preview
+        document.getElementById('firstPreview').scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+        });
+    }
+    
+    // Form validation
+    document.getElementById('settingsForm').addEventListener('submit', function(e) {
+        const fields = ['id_first_message', 'id_last_month_message', 'id_last_message'];
+        let hasContent = false;
+        
+        fields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field && field.value.trim()) {
+                hasContent = true;
+            }
+        });
+        
+        if (!hasContent) {
+            e.preventDefault();
+            alert('Kamida bitta xabar matni kiritilishi kerak!');
+            return false;
+        }
+    });
+    
+    // Auto-save draft (optional)
+    let autoSaveTimeout;
+    function autoSave() {
+        clearTimeout(autoSaveTimeout);
+        autoSaveTimeout = setTimeout(() => {
+            console.log('Draft saved locally');
+        }, 2000);
+    }
+    
+    // Add auto-save listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        const textareas = document.querySelectorAll('textarea');
+        textareas.forEach(textarea => {
+            textarea.addEventListener('input', autoSave);
+        });
+    });
+</script>
+{% endblock %}

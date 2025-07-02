@@ -1,0 +1,504 @@
+{% extends 'finance/base.html' %}
+{% load static %}
+
+{% block title %}{{ expense.title }} - Tahrirlash{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+            <link rel="stylesheet" href="{% static 'css/mainfinance.css' %}">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">
+            <i class="fas fa-edit me-2"></i>
+            Xarajatni tahrirlash
+        </h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'expense_detail' expense.pk %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>
+                Orqaga
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-edit me-2"></i>
+                        Xarajat ma'lumotlarini yangilash
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="editExpenseForm">
+                        {% csrf_token %}
+                        
+                        <!-- Xarajat turi (read-only) -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Joriy xarajat turi</label>
+                                <div class="alert alert-info">
+                                    {% if expense.service %}
+                                        <i class="fas fa-briefcase me-2"></i>
+                                        <strong>Service xarajati:</strong> {{ expense.service.name }} ({{ expense.service.company.name }})
+                                        <input type="hidden" name="expense_type" value="service">
+                                    {% elif expense.employee %}
+                                        <i class="fas fa-user me-2"></i>
+                                        <strong>Oylik xarajat:</strong> {{ expense.employee.first_name }} {{ expense.employee.last_name }}
+                                        <input type="hidden" name="expense_type" value="monthly">
+                                    {% else %}
+                                        <i class="fas fa-building me-2"></i>
+                                        <strong>Kompaniya xarajati:</strong> Umumiy xarajat
+                                        <input type="hidden" name="expense_type" value="company">
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Sarlavha -->
+                            <div class="col-md-6 mb-3">
+                                <label for="title" class="form-label">Sarlavha *</label>
+                                <input type="text" class="form-control" id="title" name="title" value="{{ expense.title }}" required>
+                            </div>
+
+                            <!-- Kategoriya -->
+                            <div class="col-md-6 mb-3">
+                                <label for="category" class="form-label">Kategoriya *</label>
+                                <select class="form-select" id="category" name="category" required>
+                                    <option value="">Kategoriyani tanlang</option>
+                                    {% for category in categories %}
+                                        <option value="{{ category.id }}" 
+                                                data-tax="{{ category.tax_rate }}"
+                                                {% if category.id == expense.category.id %}selected{% endif %}>
+                                            {{ category.name }} 
+                                            {% if category.tax_rate > 0 %}
+                                                ({{ category.tax_rate }}% soliq)
+                                            {% endif %}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Asosiy summa -->
+                            <div class="col-md-6 mb-3">
+                                <label for="amount" class="form-label">Asosiy summa *</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="amount" name="amount" 
+                                           step="0.01" value="{{ expense.amount }}" required>
+                                    <span class="input-group-text">so'm</span>
+                                </div>
+                                <small class="form-text text-muted">Hozirgi qiymat soliq bilan birga</small>
+                            </div>
+
+                            <!-- To'lov usuli -->
+                            <div class="col-md-6 mb-3">
+                                <label for="payment_method" class="form-label">To'lov usuli *</label>
+                                <select class="form-select" id="payment_method" name="payment_method" required>
+                                    <option value="">To'lov usulini tanlang</option>
+                                    <option value="cash" {% if expense.payment_method == 'cash' %}selected{% endif %}>Naqd</option>
+                                    <option value="card" {% if expense.payment_method == 'card' %}selected{% endif %}>Karta</option>
+                                    <option value="transfer" {% if expense.payment_method == 'transfer' %}selected{% endif %}>O'tkazma</option>
+                                    <option value="check" {% if expense.payment_method == 'check' %}selected{% endif %}>Chek</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Soliq hisoblash -->
+                        <div class="row" id="taxCalculation" style="display: none;">
+                            <div class="col-12 mb-3">
+                                <div class="alert alert-warning">
+                                    <h6><i class="fas fa-calculator me-2"></i>Yangi soliq hisoblash</h6>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <strong>Asosiy summa:</strong>
+                                            <span id="baseAmount">0</span> so'm
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>Soliq (<span id="taxRate">0</span>%):</strong>
+                                            <span id="taxAmount">0</span> so'm
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>Yangi jami:</strong>
+                                            <span id="totalAmount" class="text-danger fw-bold">0</span> so'm
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Service yoki Employee o'zgartirish -->
+                        {% if expense.service %}
+                            <div class="row" id="serviceSection">
+                                <div class="col-12 mb-3">
+                                    <label for="service" class="form-label">Service o'zgartirish</label>
+                                    <div class="search-container">
+                                        <input type="text" class="form-control" id="serviceSearch" 
+                                               placeholder="Yangi service tanlash uchun bosing..." style="display: none;">
+                                        <input type="hidden" id="service" name="service" value="{{ expense.service.id }}">
+                                        <div id="serviceResults" class="search-results"></div>
+                                    </div>
+                                    <div id="selectedService" class="selected-item">
+                                        <span class="selected-text">
+                                            <strong>{{ expense.service.name }}</strong><br>
+                                            <small>{{ expense.service.company.name }}</small>
+                                        </span>
+                                        <button type="button" class="btn-close-small" onclick="changeService()">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        {% elif expense.employee %}
+                            <div class="row" id="employeeSection">
+                                <div class="col-12 mb-3">
+                                    <label for="employee" class="form-label">Xodim o'zgartirish</label>
+                                    <div class="search-container">
+                                        <input type="text" class="form-control" id="employeeSearch" 
+                                               placeholder="Yangi xodim tanlash uchun bosing..." style="display: none;">
+                                        <input type="hidden" id="employee" name="employee" value="{{ expense.employee.id }}">
+                                        <div id="employeeResults" class="search-results"></div>
+                                    </div>
+                                    <div id="selectedEmployee" class="selected-item">
+                                        <span class="selected-text">
+                                            <strong>{{ expense.employee.first_name }} {{ expense.employee.last_name }}</strong><br>
+                                            <small>{{ expense.employee.get_position_display }}</small>
+                                        </span>
+                                        <button type="button" class="btn-close-small" onclick="changeEmployee()">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <!-- Sana -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="date" class="form-label">Sana *</label>
+                                <input type="date" class="form-control" id="date" name="date" 
+                                       value="{{ expense.date|date:'Y-m-d' }}" required>
+                            </div>
+                        </div>
+
+                        <!-- Izoh -->
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label for="notes" class="form-label">Izoh</label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                          placeholder="Qo'shimcha ma'lumotlar...">{{ expense.notes }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Submit tugmalari -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'expense_detail' expense.pk %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-2"></i>
+                                        Bekor qilish
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>
+                                        Yangilash
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Yordamchi ma'lumotlar -->
+        <div class="col-lg-4">
+            <!-- Joriy ma'lumotlar -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Joriy ma'lumotlar
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <small class="text-muted">Joriy summa</small>
+                        <p class="fw-bold text-danger">{{ expense.amount|floatformat:0 }} so'm</p>
+                    </div>
+                    
+                    <div class="info-item">
+                        <small class="text-muted">Joriy kategoriya</small>
+                        <p class="fw-bold">{{ expense.category.name }}
+                            {% if expense.category.tax_rate > 0 %}
+                                <br><small class="text-muted">{{ expense.category.tax_rate }}% soliq</small>
+                            {% endif %}
+                        </p>
+                    </div>
+                    
+                    <div class="info-item">
+                        <small class="text-muted">Yaratilgan</small>
+                        <p class="fw-bold">{{ expense.created_date|date:"d.m.Y H:i" }}</p>
+                    </div>
+                    
+                    <div class="info-item">
+                        <small class="text-muted">Yaratgan</small>
+                        <p class="fw-bold">{{ expense.created_by.first_name }} {{ expense.created_by.last_name }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- O'zgartirish tarixi -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-history me-2"></i>
+                        Eslatma
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h6><i class="fas fa-exclamation-triangle me-2"></i>Diqqat!</h6>
+                        <ul class="small mb-0">
+                            <li>Summa o'zgartirilganda soliq qayta hisoblanadi</li>
+                            <li>Kategoriya o'zgartirilganda soliq stavkasi yangilanadi</li>
+                            <li>Service/Xodim o'zgartirish ixtiyoriy</li>
+                            <li>Barcha o'zgarishlar saqlanadi</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="text-muted small">
+                        <i class="fas fa-clock me-1"></i>
+                        Oxirgi o'zgarish: {{ expense.created_date|date:"d.m.Y H:i" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.selected-item .btn-close-small {
+    background: none;
+    border: none;
+    color: #666;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.selected-item .btn-close-small:hover {
+    background: rgba(0,0,0,0.1);
+    color: #000;
+}
+
+.info-item {
+    margin-bottom: 1rem;
+}
+
+.info-item:last-child {
+    margin-bottom: 0;
+}
+
+.info-item p {
+    margin-bottom: 0;
+    margin-top: 2px;
+}
+
+.search-container {
+    position: relative;
+}
+
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.search-result-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.search-result-item:hover {
+    background-color: #f8f9fa;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.selected-item {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background-color: #e3f2fd;
+    border: 1px solid #2196f3;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Kategoriya va summa o'zgarishi
+    document.getElementById('category').addEventListener('change', calculateTax);
+    document.getElementById('amount').addEventListener('input', calculateTax);
+
+    // Search functionality
+    setupSearch('employee', 'employeeSearch', 'employeeResults', 'selectedEmployee', '/finance/api/search-employees/');
+    setupSearch('service', 'serviceSearch', 'serviceResults', 'selectedService', '/finance/api/search-services/');
+});
+
+function calculateTax() {
+    const categorySelect = document.getElementById('category');
+    const amountInput = document.getElementById('amount');
+    const taxCalculation = document.getElementById('taxCalculation');
+    
+    const selectedOption = categorySelect.selectedOptions[0];
+    const taxRate = selectedOption ? parseFloat(selectedOption.dataset.tax) || 0 : 0;
+    const currentAmount = parseFloat(amountInput.value) || 0;
+    
+    if (currentAmount > 0 && taxRate >= 0) {
+        // Current amount might include tax, so we need to calculate base amount
+        const baseAmount = currentAmount; // User enters base amount
+        const taxAmount = (baseAmount * taxRate) / 100;
+        const totalAmount = baseAmount + taxAmount;
+        
+        document.getElementById('baseAmount').textContent = baseAmount.toLocaleString();
+        document.getElementById('taxRate').textContent = taxRate;
+        document.getElementById('taxAmount').textContent = taxAmount.toLocaleString();
+        document.getElementById('totalAmount').textContent = totalAmount.toLocaleString();
+        
+        taxCalculation.style.display = 'block';
+    } else {
+        taxCalculation.style.display = 'none';
+    }
+}
+
+function changeService() {
+    document.getElementById('serviceSearch').style.display = 'block';
+    document.getElementById('selectedService').style.display = 'none';
+    document.getElementById('serviceSearch').focus();
+}
+
+function changeEmployee() {
+    document.getElementById('employeeSearch').style.display = 'block';
+    document.getElementById('selectedEmployee').style.display = 'none';
+    document.getElementById('employeeSearch').focus();
+}
+
+function setupSearch(hiddenInputId, searchInputId, resultsId, selectedId, apiUrl) {
+    const searchInput = document.getElementById(searchInputId);
+    const hiddenInput = document.getElementById(hiddenInputId);
+    const resultsDiv = document.getElementById(resultsId);
+    const selectedDiv = document.getElementById(selectedId);
+    
+    if (!searchInput) return;
+    
+    let searchTimeout;
+    
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        clearTimeout(searchTimeout);
+        
+        if (query.length < 2) {
+            resultsDiv.style.display = 'none';
+            return;
+        }
+        
+        searchTimeout = setTimeout(() => {
+            fetch(`${apiUrl}?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    displayResults(data.results, resultsDiv, hiddenInputId, searchInputId, selectedId);
+                })
+                .catch(error => console.error('Search error:', error));
+        }, 300);
+    });
+    
+    // Click outside to hide results
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest(`#${searchInputId}`) && !e.target.closest(`#${resultsId}`)) {
+            resultsDiv.style.display = 'none';
+        }
+    });
+}
+
+function displayResults(results, resultsDiv, hiddenInputId, searchInputId, selectedId) {
+    if (results.length === 0) {
+        resultsDiv.innerHTML = '<div class="search-result-item text-muted">Natija topilmadi</div>';
+        resultsDiv.style.display = 'block';
+        return;
+    }
+    
+    resultsDiv.innerHTML = '';
+    
+    results.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'search-result-item';
+        
+        if (hiddenInputId === 'employee') {
+            div.innerHTML = `
+                <strong>${item.name}</strong><br>
+                <small class="text-muted">${item.position}</small>
+            `;
+        } else if (hiddenInputId === 'service') {
+            div.innerHTML = `
+                <strong>${item.name}</strong><br>
+                <small class="text-muted">${item.company}</small>
+            `;
+        }
+        
+        div.addEventListener('click', function() {
+            selectItem(item, hiddenInputId, searchInputId, selectedId, resultsDiv);
+        });
+        
+        resultsDiv.appendChild(div);
+    });
+    
+    resultsDiv.style.display = 'block';
+}
+
+function selectItem(item, hiddenInputId, searchInputId, selectedId, resultsDiv) {
+    const hiddenInput = document.getElementById(hiddenInputId);
+    const searchInput = document.getElementById(searchInputId);
+    const selectedDiv = document.getElementById(selectedId);
+    
+    hiddenInput.value = item.id;
+    searchInput.style.display = 'none';
+    resultsDiv.style.display = 'none';
+    
+    const selectedText = selectedDiv.querySelector('.selected-text');
+    if (hiddenInputId === 'employee') {
+        selectedText.innerHTML = `<strong>${item.name}</strong><br><small>${item.position}</small>`;
+    } else if (hiddenInputId === 'service') {
+        selectedText.innerHTML = `<strong>${item.name}</strong><br><small>${item.company}</small>`;
+    }
+    
+    selectedDiv.style.display = 'flex';
+}
+</script>
+    {% block extra_js %}
+        <script src="{% static 'js/main/finance.js' %}"></script>
+
+    {% endblock %}
+
+{% endblock %}

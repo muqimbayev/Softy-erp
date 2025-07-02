@@ -1,0 +1,431 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/main/income-form.css' %}">
+<style>
+.delete-page {
+    padding: 24px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.delete-header {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 32px;
+    color: white;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(220, 53, 69, 0.3);
+}
+
+.delete-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+}
+
+.delete-subtitle {
+    font-size: 14px;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.delete-container {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.delete-content {
+    padding: 32px;
+}
+
+.income-info {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    border-left: 4px solid #dc3545;
+}
+
+.income-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.income-detail:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.detail-value {
+    font-weight: 500;
+    color: #2c3e50;
+    text-align: right;
+}
+
+.warning-box {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border: 1px solid #ffeaa7;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.warning-icon {
+    color: #856404;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.warning-content h4 {
+    color: #856404;
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.warning-content p {
+    color: #856404;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.delete-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    padding-top: 24px;
+    border-top: 1px solid #e9ecef;
+}
+
+.amount-highlight {
+    color: #dc3545 !important;
+    font-weight: 700 !important;
+    font-size: 16px !important;
+}
+
+@media (max-width: 768px) {
+    .delete-page {
+        padding: 16px;
+    }
+    
+    .delete-content {
+        padding: 24px 20px;
+    }
+    
+    .delete-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .income-detail {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    
+    .detail-value {
+        text-align: left;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="delete-page">
+    <!-- Delete Header -->
+    <div class="delete-header">
+        <div class="delete-icon">
+            <i data-lucide="trash-2"></i>
+        </div>
+        <h1 class="delete-title">Daromadni o'chirish</h1>
+        <p class="delete-subtitle">Bu amalni qaytarib bo'lmaydi</p>
+    </div>
+
+    <!-- Delete Container -->
+    <div class="delete-container">
+        <div class="delete-content">
+            
+            <!-- Income Information -->
+            <div class="income-info">
+                <h3 style="margin: 0 0 16px 0; color: #2c3e50; font-size: 18px;">
+                    <i data-lucide="dollar-sign"></i>
+                    Daromad ma'lumotlari
+                </h3>
+                
+                <div class="income-detail">
+                    <span class="detail-label">Miqdor:</span>
+                    <span class="detail-value amount-highlight">{{ income.amount|floatformat:0 }} so'm</span>
+                </div>
+                
+                <div class="income-detail">
+                    <span class="detail-label">Holat:</span>
+                    <span class="detail-value status-{{ income.status }}">{{ income.get_status_display }}</span>
+                </div>
+                
+                {% if income.payment_method %}
+                <div class="income-detail">
+                    <span class="detail-label">To'lov usuli:</span>
+                    <span class="detail-value">{{ income.get_payment_method_display }}</span>
+                </div>
+                {% endif %}
+                
+                {% if income.payment_date %}
+                <div class="income-detail">
+                    <span class="detail-label">To'lov sanasi:</span>
+                    <span class="detail-value">{{ income.payment_date|date:"d.m.Y" }}</span>
+                </div>
+                {% endif %}
+                
+                <div class="income-detail">
+                    <span class="detail-label">Xizmat:</span>
+                    <span class="detail-value">{{ service.name }}</span>
+                </div>
+                
+                <div class="income-detail">
+                    <span class="detail-label">Kompaniya:</span>
+                    <span class="detail-value">{{ service.company.name }}</span>
+                </div>
+                
+                <div class="income-detail">
+                    <span class="detail-label">Yaratilgan:</span>
+                    <span class="detail-value">{{ income.created_date|date:"d.m.Y H:i" }}</span>
+                </div>
+                
+                {% if income.created_by %}
+                <div class="income-detail">
+                    <span class="detail-label">Yaratgan:</span>
+                    <span class="detail-value">{{ income.created_by.get_full_name }}</span>
+                </div>
+                {% endif %}
+                
+                {% if income.notes %}
+                <div class="income-detail">
+                    <span class="detail-label">Izoh:</span>
+                    <span class="detail-value">{{ income.notes }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Warning Box -->
+            <div class="warning-box">
+                <i class="warning-icon" data-lucide="alert-triangle"></i>
+                <div class="warning-content">
+                    <h4>Diqqat!</h4>
+                    <p>
+                        Bu daromadni o'chirishdan oldin quyidagilarni hisobga oling:
+                    </p>
+                    <ul style="margin: 8px 0 0 16px; padding: 0;">
+                        <li>Bu daromad butunlay o'chiriladi</li>
+                        <li>Bu amalni qaytarib bo'lmaydi</li>
+                        <li>Hisobotlarda bu daromad ko'rinmay qoladi</li>
+                        <li>Xizmat statistikasi o'zgaradi</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Delete Form -->
+            <form method="post">
+                {% csrf_token %}
+                
+                <!-- Confirmation Checkbox -->
+                <div style="margin: 24px 0;">
+                    <label class="checkbox-item" style="border: 2px solid #dc3545; background: #fff5f5;">
+                        <input type="checkbox" id="confirmDelete" required>
+                        <label for="confirmDelete" class="checkbox-label">
+                            <span class="checkbox-text" style="color: #721c24;">
+                                Men bu daromadni butunlay o'chirishni tasdiqlayman
+                            </span>
+                            <span class="checkbox-description" style="color: #721c24;">
+                                Bu amalni qaytarib bo'lmasligini tushunaman
+                            </span>
+                        </label>
+                    </label>
+                </div>
+
+                <!-- Delete Actions -->
+                <div class="delete-actions">
+                    <a href="{% url 'main:service_detail' service.id %}" class="btn btn-secondary">
+                        <i data-lucide="arrow-left"></i>
+                        Bekor qilish
+                    </a>
+                    
+                    <button type="submit" class="btn btn-danger" id="deleteBtn" disabled>
+                        <i data-lucide="trash-2"></i>
+                        <span>O'chirish</span>
+                        <div class="btn-loader" style="display: none;">
+                            <div class="spinner"></div>
+                        </div>
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmCheckbox = document.getElementById('confirmDelete');
+    const deleteBtn = document.getElementById('deleteBtn');
+    const form = document.querySelector('form');
+    const incomeId = {{ income.id }};
+    const serviceId = {{ service.id }};
+    
+    // Enable/disable delete button based on checkbox
+    confirmCheckbox.addEventListener('change', function() {
+        deleteBtn.disabled = !this.checked;
+        
+        if (this.checked) {
+            deleteBtn.classList.remove('btn-disabled');
+        } else {
+            deleteBtn.classList.add('btn-disabled');
+        }
+    });
+    
+    // Form submission with AJAX
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (!confirmCheckbox.checked) {
+            alert('Iltimos, tasdiqlash belgisini qo\'ying');
+            return;
+        }
+        
+        // Show loading state
+        deleteBtn.disabled = true;
+        deleteBtn.querySelector('span').textContent = 'O\'chirilmoqda...';
+        deleteBtn.querySelector('.btn-loader').style.display = 'block';
+        
+        // AJAX request to your view
+        fetch(`/income/${incomeId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken(),
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                showSuccessMessage('Daromad muvaffaqiyatli o\'chirildi!');
+                
+                // Redirect after delay
+                setTimeout(() => {
+                    window.location.href = `/services/${serviceId}/`;
+                }, 1500);
+            } else {
+                // Show error message
+                showErrorMessage('Daromad o\'chirishda xatolik yuz berdi!');
+                resetButton();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showErrorMessage('Tarmoq xatosi yuz berdi!');
+            resetButton();
+        });
+    });
+    
+    function getCsrfToken() {
+        const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+        return csrfInput ? csrfInput.value : '';
+    }
+    
+    function resetButton() {
+        deleteBtn.disabled = false;
+        deleteBtn.querySelector('span').textContent = 'O\'chirish';
+        deleteBtn.querySelector('.btn-loader').style.display = 'none';
+    }
+    
+    function showSuccessMessage(message) {
+        const successDiv = document.createElement('div');
+        successDiv.className = 'alert alert-success';
+        successDiv.style.position = 'fixed';
+        successDiv.style.top = '20px';
+        successDiv.style.right = '20px';
+        successDiv.style.zIndex = '9999';
+        successDiv.innerHTML = `
+            <i data-lucide="check-circle"></i>
+            ${message}
+        `;
+        document.body.appendChild(successDiv);
+        
+        // Initialize icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    }
+    
+    function showErrorMessage(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-danger';
+        errorDiv.style.position = 'fixed';
+        errorDiv.style.top = '20px';
+        errorDiv.style.right = '20px';
+        errorDiv.style.zIndex = '9999';
+        errorDiv.innerHTML = `
+            <i data-lucide="alert-circle"></i>
+            ${message}
+        `;
+        document.body.appendChild(errorDiv);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (errorDiv.parentNode) {
+                errorDiv.remove();
+            }
+        }, 5000);
+        
+        // Initialize icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    }
+    
+    // Initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+});
+</script>
+{% endblock %}
