@@ -61,8 +61,8 @@ urlpatterns += [
     path('services/<int:service_id>/expense/add/', service.service_expense_add, name='service_expense_add'),
     path('income/<int:income_id>/edit/', service.income_edit, name='income_edit'),
     path('income/<int:income_id>/delete/', service.income_delete, name='income_delete'),
-    path('expense/<int:expense_id>/edit/', service.expense_edit, name='expense_edit'),
-    path('expense/<int:expense_id>/delete/', service.expense_delete, name='expense_delete'),
+    path('service/expense/<int:expense_id>/edit/', service.expense_edit, name='service_expense_edit'),
+    path('service/expense/<int:expense_id>/delete/', service.expense_delete, name='service_expense_delete'),
     
     # AJAX endpoints
     path('api/companies/search/', service.company_search_api, name='company_search_api'),

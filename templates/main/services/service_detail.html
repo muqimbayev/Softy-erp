@@ -427,10 +427,10 @@
                         </div>
                         {% if can_edit_finance %}
                         <div class="transaction-actions">
-                            <a href="{% url 'main:expense_edit' expense.id %}" class="btn btn-sm btn-outline">
+                            <a href="{% url 'main:service_expense_edit' expense.id %}" class="btn btn-sm btn-outline">
                                 <img src="{% static 'icon/edit.png' %}" alt="Edit" width="16" height="16">
                             </a>
-                                      <a href="{% url 'main:expense_delete' expense.id %}" class="btn btn-sm btn-outline">
+                                      <a href="{% url 'main:service_expense_delete' expense.id %}" class="btn btn-sm btn-outline">
                                 <img src="{% static 'icon/delete.png' %}" alt="Edit" width="16" height="16">
                             </a>
                         </div>
@@ -484,7 +484,7 @@ function showDeleteModal(type, id) {
     newConfirmBtn.onclick = function() {
         const url = type === 'income' ? 
             `/income/${id}/delete/` : 
-            `/expense/${id}/delete/`;
+            `/service/expense/${id}/delete/`;
         
         fetch(url, {
             method: 'POST',
