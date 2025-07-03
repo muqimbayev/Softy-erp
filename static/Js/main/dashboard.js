@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize dashboard
     function initDashboard() {
-        loadDashboardData();
         initQuickActions();
         initFilters();
         setupRefresh();
@@ -26,32 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('📊 Dashboard initialized');
     }
     
-    // Load dashboard data from server
-    async function loadDashboardData() {
-        try {
-            showLoading();
-            
-            // Real API calls
-            const [stats, chartData] = await Promise.all([
-                fetchStats(),
-                fetchChartData()
-            ]);
-            
-            dashboardData.stats = stats;
-            dashboardData.charts = chartData;
-            
-            updateDashboard();
-            
-        } catch (error) {
-            console.error('Dashboard ma\'lumotlari yuklanmadi:', error);
-            showToast('Ma\'lumotlar yuklanmadi', 'error');
-            
-            // Show empty state
-            showEmptyState();
-        } finally {
-            hideLoading();
-        }
-    }
+ 
     
 
     
@@ -327,7 +301,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const incomeFilter = document.getElementById('incomeFilter');
         if (incomeFilter) {
             incomeFilter.addEventListener('change', function() {
-                loadDashboardData(); // Reload with new filter
             });
         }
     }
@@ -335,12 +308,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Setup auto-refresh
     function setupRefresh() {
         // Refresh every 5 minutes
-        setInterval(loadDashboardData, 5 * 60 * 1000);
         
         // Manual refresh button
         const refreshBtn = document.querySelector('.refresh-btn');
         if (refreshBtn) {
-            refreshBtn.addEventListener('click', loadDashboardData);
         }
     }
     
@@ -352,7 +323,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Export functions
     window.dashboardFunctions = {
-        loadDashboardData,
         updateDashboard,
         animateNumber
     };

@@ -24,3 +24,5 @@ htmlcov/
 nosetests.xml
 coverage.xml
 venv
+db.sqlite3
+Reja

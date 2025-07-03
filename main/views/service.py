@@ -262,7 +262,7 @@ def service_delete(request, service_id):
         service_name = service.name
         service.delete()
         messages.success(request, f'"{service_name}" xizmati muvaffaqiyatli o\'chirildi!')
-        return redirect('main:service_list')
+        return redirect('main:company_detail', company_id=service.company.id)
     
     context = {
         'title': f'{service.name} o\'chirish - Softy ERP',
