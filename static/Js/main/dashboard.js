@@ -53,38 +53,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Real API calls
-    async function fetchStats() {
-        const response = await fetch('/api/dashboard/stats/', {
-            method: 'GET',
-            headers: {
-                'X-CSRFToken': getCSRFToken(),
-                'Content-Type': 'application/json',
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        return await response.json();
-    }
+
     
-    async function fetchChartData() {
-        const response = await fetch('/api/dashboard/chart-data/', {
-            method: 'GET',
-            headers: {
-                'X-CSRFToken': getCSRFToken(),
-                'Content-Type': 'application/json',
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        return await response.json();
-    }
+
     
     // Update dashboard elements
     function updateDashboard() {

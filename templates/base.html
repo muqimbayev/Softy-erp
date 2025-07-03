@@ -20,7 +20,6 @@
     <!-- base.html da Bootstrap JS yuklanganligini tekshiring -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
     
     <!-- Additional CSS -->
     {% block extra_css %}{% endblock %}
@@ -111,6 +110,9 @@
                         </a>
                         <ul class="submenu">
                             <li><a href="{% url 'main:financial_report' %}" class="submenu-link">Moliyaviy hisobot</a></li>
+                        </ul>
+                         <ul class="submenu">
+                            <li><a href="{% url 'main:expenses_list' %}" class="submenu-link">Xarajatlar</a></li>
                         </ul>
                     </li>
                     
@@ -245,8 +247,6 @@
     <!-- JavaScript Files -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
     <script src="{% static 'js/main/base.js' %}"></script>
-    <!-- base.html da, boshqa script lardan oldin -->
-    <script src="{% static 'js/main/custom-modal.js' %}"></script>
     
     <!-- Dashboard JS only for dashboard page -->
     {% if request.resolver_match.url_name == 'dashboard' %}
